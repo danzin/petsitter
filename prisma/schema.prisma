@@ -1,0 +1,157 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  userType      UserType  @default(PETOWNER)
+  bio           String?
+  location      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  petOwner         PetOwner?
+  petSitter        PetSitter?
+  accounts         Account[]
+  sessions         Session[]
+  reviews          Review[]   @relation("ReviewAuthor")
+  reviewsReceived  Review[]   @relation("ReviewTarget")
+  messages         Message[]  @relation("MessageSender")
+  messagesReceived Message[]  @relation("MessageRecipient")
+}
+
+enum UserType {
+  PETOWNER
+  PETSITTER
+  BOTH
+}
+
+model PetOwner {
+  id       String    @id @default(cuid())
+  userId   String    @unique
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pets     Pet[]
+  bookings Booking[] @relation("BookingOwner")
+}
+
+model PetSitter {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rate            Decimal?  @db.Decimal(10, 2)
+  experience      String?
+  servicesOffered String[]
+  availability    Json?
+  bookings        Booking[] @relation("BookingSitter")
+}
+
+model Pet {
+  id          String    @id @default(cuid())
+  name        String
+  type        String
+  breed       String?
+  age         Int?
+  description String?
+  imageUrl    String?
+  ownerId     String
+  owner       PetOwner  @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  bookings    Booking[]
+}
+
+model Booking {
+  id         String        @id @default(cuid())
+  startDate  DateTime
+  endDate    DateTime
+  status     BookingStatus @default(PENDING)
+  totalPrice Decimal?      @db.Decimal(10, 2)
+  notes      String?
+  createdAt  DateTime      @default(now())
+
+  petId    String
+  pet      Pet       @relation(fields: [petId], references: [id])
+  ownerId  String
+  owner    PetOwner  @relation("BookingOwner", fields: [ownerId], references: [id])
+  sitterId String
+  sitter   PetSitter @relation("BookingSitter", fields: [sitterId], references: [id])
+  review   Review?
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  bookingId String  @unique
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User    @relation("ReviewAuthor", fields: [authorId], references: [id])
+  targetId  String
+  target    User    @relation("ReviewTarget", fields: [targetId], references: [id])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  senderId    String
+  sender      User   @relation("MessageSender", fields: [senderId], references: [id])
+  recipientId String
+  recipient   User   @relation("MessageRecipient", fields: [recipientId], references: [id])
+}
+
+// NextAuth models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}

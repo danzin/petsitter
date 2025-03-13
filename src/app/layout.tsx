@@ -1,6 +1,9 @@
+import "reflect-metadata";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { bootstrap } from "@/lib/bootstrap";
+import AuthProvider from "./AuthProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -11,6 +14,12 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+try {
+  bootstrap();
+} catch (error) {
+  console.error("Failed to bootstrap application:", error);
+}
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -27,7 +36,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+       <AuthProvider> {children}</AuthProvider>
       </body>
     </html>
   );
