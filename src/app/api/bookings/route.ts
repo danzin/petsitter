@@ -74,7 +74,7 @@ export async function PUT(
     const { startDate, endDate, notes, status } = await req.json();
 
     try {
-      const booking = await bookingService.updateBooking({
+      const booking = await bookingService.updateBooking(session?.user.id, {
         bookingId: params.id,
         startDate: startDate ? new Date(startDate) : undefined,
         endDate: endDate ? new Date(endDate) : undefined,
