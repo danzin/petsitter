@@ -15,22 +15,33 @@ export class BookingRepository {
         startDate: data.startDate,
         endDate: data.endDate,
         notes: data.notes,
-        pet: { connect: { id: data.petId } },
-        owner: { connect: { id: data.ownerId } },
-        sitter: { connect: { id: data.sitterId } },
+        status: data.status,
+        price: data.price,
+        ownerId: data.ownerId,
+        sitterId: data.sitterId,
+        pets: { connect: data.petIds.map((id) => ({ id })) },
       },
       include: {
-        pet: true,
-        owner: {
-          include: {
-            user: true,
-          },
-        },
-        sitter: {
-          include: {
-            user: true,
-          },
-        },
+        pets: true,
+        owner: { include: { user: true } },
+        sitter: { include: { user: true } },
+      },
+    });
+  }
+
+  async update(id: string, data: UpdateBookingDTO): Promise<Booking> {
+    return this.prismaService.client.booking.update({
+      where: { id },
+      data: {
+        ...data,
+        ...(data.petIds && {
+          pets: { set: data.petIds.map((id) => ({ id })) },
+        }),
+      },
+      include: {
+        pets: true,
+        owner: { include: { user: true } },
+        sitter: { include: { user: true } },
       },
     });
   }
@@ -39,7 +50,7 @@ export class BookingRepository {
     return this.prismaService.client.booking.findUnique({
       where: { id },
       include: {
-        pet: true,
+        pets: true,
         owner: {
           include: {
             user: true,
@@ -58,7 +69,7 @@ export class BookingRepository {
     return this.prismaService.client.booking.findMany({
       where: { ownerId },
       include: {
-        pet: true,
+        pets: true,
         sitter: {
           include: {
             user: true,
@@ -72,33 +83,8 @@ export class BookingRepository {
     return this.prismaService.client.booking.findMany({
       where: { sitterId },
       include: {
-        pet: true,
+        pets: true,
         owner: {
-          include: {
-            user: true,
-          },
-        },
-      },
-    });
-  }
-
-  async update(data: UpdateBookingDTO): Promise<Booking> {
-    return this.prismaService.client.booking.update({
-      where: { id: data.bookingId },
-      data: {
-        status: data.status,
-        startDate: data.startDate,
-        endDate: data.endDate,
-        notes: data.notes,
-      },
-      include: {
-        pet: true,
-        owner: {
-          include: {
-            user: true,
-          },
-        },
-        sitter: {
           include: {
             user: true,
           },

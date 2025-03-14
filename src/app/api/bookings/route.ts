@@ -1,30 +1,54 @@
 import { NextRequest, NextResponse } from "next/server";
 import { container } from "@/lib/container";
 import { BookingService } from "@/services/BookingService";
+import { getAuthSession } from "@/lib/auth/authContext";
+import { BookingStatus, Prisma } from "@prisma/client";
+const bookingService = container.resolve(BookingService);
+const session = await getAuthSession();
+export async function GET() {
+  try {
+    if (!session || !session.user.id) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    const bookings = await bookingService.findByOwnerId(session.user.id);
+
+    return NextResponse.json({ bookings });
+  } catch (error) {
+    console.error("Error fetching bookings:", error);
+    return NextResponse.json(
+      { message: "Something went wrong" },
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
-    const { startDate, endDate, notes, petId, ownerId, sitterId } =
+    const { startDate, endDate, notes, petIds, ownerId, sitterId } =
       await req.json();
 
-    if (!startDate || !endDate || !petId || !ownerId || !sitterId) {
+    if (!startDate || !endDate || !petIds || !ownerId || !sitterId) {
       return NextResponse.json(
         { message: "Missing required booking information" },
         { status: 400 }
       );
     }
 
-    const bookingService = container.resolve(BookingService);
-
     try {
-      const booking = await bookingService.createBooking({
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
-        notes,
-        petId,
-        ownerId,
-        sitterId,
-      });
+      const booking = await bookingService.createBooking(
+        session?.user.id as string,
+        {
+          startDate: new Date(startDate),
+          endDate: new Date(endDate),
+          notes,
+          petIds,
+          ownerId,
+          sitterId,
+          status: BookingStatus.PENDING,
+          price: new Prisma.Decimal(0),
+        }
+      );
 
       return NextResponse.json(
         { message: "Booking created successfully", booking },
@@ -48,7 +72,6 @@ export async function PUT(
 ) {
   try {
     const { startDate, endDate, notes, status } = await req.json();
-    const bookingService = container.resolve(BookingService);
 
     try {
       const booking = await bookingService.updateBooking({
@@ -83,10 +106,13 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const bookingService = container.resolve(BookingService);
+    const session = await getAuthSession();
+    if (!session || !session.user.id) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
 
     try {
-      await bookingService.cancelBooking(params.id);
+      await bookingService.cancelBooking(params.id, session.user.id);
       return NextResponse.json(
         { message: "Booking cancelled successfully" },
         { status: 200 }

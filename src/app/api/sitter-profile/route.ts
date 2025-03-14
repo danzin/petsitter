@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/lib/auth/authContext";
 import { container } from "../../../lib/container";
-import { PrismaClient, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { UserRepository } from "@/repositories/UserRepository";
 import { SitterRepository } from "@/repositories/SitterRepository";
-const prisma = container.resolve("PrismaClient") as PrismaClient;
+
 const userRepository = container.resolve("UserRepository") as UserRepository;
 const sitterRepository = container.resolve(
   "SitterRepository"
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
     };
 
     const updatedProfile = await sitterRepository.update(
-      user.petSitter.id,
+      petSitter.id,
       sitterUpdateData
     );
 

@@ -1,18 +1,19 @@
 import { BookingStatus } from "@prisma/client";
-
+import { Prisma } from "@prisma/client";
 export interface CreateBookingDTO {
   startDate: Date;
   endDate: Date;
   notes?: string;
-  petId: string;
+  petIds: string[];
   ownerId: string;
   sitterId: string;
+  status: BookingStatus;
+  price: Prisma.Decimal;
 }
-
 export interface UpdateBookingDTO {
-  bookingId: string;
   status?: BookingStatus;
   startDate?: Date;
   endDate?: Date;
   notes?: string;
+  petIds?: string[];
 }

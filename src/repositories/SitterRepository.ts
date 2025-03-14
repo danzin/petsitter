@@ -1,38 +1,66 @@
-import { PetSitter, Prisma } from "@prisma/client";
+// repositories/SitterRepository.ts
 import { injectable, inject } from "tsyringe";
-import { PrismaClientService } from "../lib/prisma/prismaClient";
+import { PrismaClient, PetSitter, Prisma } from "@prisma/client";
 
 @injectable()
 export class SitterRepository {
-  constructor(
-    @inject(PrismaClientService) private prismaService: PrismaClientService
-  ) {}
+  constructor(@inject("PrismaClient") private prisma: PrismaClient) {}
 
-  async findById(id: string): Promise<PetSitter | null> {
-    return this.prismaService.client.petSitter.findUnique({
-      where: { id },
+  async findByUserId(userId: string): Promise<PetSitter | null> {
+    return this.prisma.petSitter.findUnique({
+      where: { userId },
     });
   }
 
-  async create(data: Partial<PetSitter>): Promise<PetSitter> {
-    return this.prismaService.client.petSitter.create({
-      data: data as any,
-    });
-  }
-
-  async update(
-    id: string,
-    data: Prisma.PetSitterUpdateInput | Prisma.PetSitterUncheckedUpdateInput
-  ): Promise<PetSitter> {
-    return this.prismaService.client.petSitter.update({
-      where: { id },
+  async create(data: Prisma.PetSitterCreateInput): Promise<PetSitter> {
+    return this.prisma.petSitter.create({
       data,
     });
   }
 
-  async delete(id: string): Promise<void> {
-    await this.prismaService.client.petSitter.delete({
-      where: { id },
+  async update(
+    userId: string,
+    data: Prisma.PetSitterUpdateInput
+  ): Promise<PetSitter> {
+    return this.prisma.petSitter.upsert({
+      where: { userId },
+      update: data,
+      create: {
+        user: { connect: { id: userId } },
+        experience: data.experience as string,
+        bookings: data.bookings,
+      },
+    });
+  }
+
+  async getAvailableSitters(filters: {
+    location?: string;
+    services?: string[];
+    startDate?: Date;
+    endDate?: Date;
+  }): Promise<PetSitter[]> {
+    // Implementation for finding available sitters based on filters
+    return this.prisma.petSitter.findMany({
+      where: {
+        // Add filter conditions based on parameters
+        ...(filters.location && { user: { location: filters.location } }),
+        ...(filters.services && {
+          servicesOffered: { hasSome: filters.services },
+        }),
+        // Add availability checks as needed
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            location: true,
+            bio: true,
+            image: true,
+          },
+        },
+      },
     });
   }
 }

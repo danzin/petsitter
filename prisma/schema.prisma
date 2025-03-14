@@ -7,120 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  userType      UserType  @default(PETOWNER)
-  bio           String?
-  location      String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  // Relations
-  petOwner         PetOwner?
-  petSitter        PetSitter?
-  accounts         Account[]
-  sessions         Session[]
-  reviews          Review[]   @relation("ReviewAuthor")
-  reviewsReceived  Review[]   @relation("ReviewTarget")
-  messages         Message[]  @relation("MessageSender")
-  messagesReceived Message[]  @relation("MessageRecipient")
-}
-
-enum UserType {
-  PETOWNER
-  PETSITTER
-  BOTH
-}
-
-model PetOwner {
-  id       String    @id @default(cuid())
-  userId   String    @unique
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  pets     Pet[]
-  bookings Booking[] @relation("BookingOwner")
-}
-
-model PetSitter {
-  id              String    @id @default(cuid())
-  userId          String    @unique
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  rate            Decimal?  @db.Decimal(10, 2)
-  experience      String?
-  servicesOffered String[]
-  availability    Json?
-  bookings        Booking[] @relation("BookingSitter")
-}
-
-model Pet {
-  id          String    @id @default(cuid())
-  name        String
-  type        String
-  breed       String?
-  age         Int?
-  description String?
-  imageUrl    String?
-  ownerId     String
-  owner       PetOwner  @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  bookings    Booking[]
-}
-
-model Booking {
-  id         String        @id @default(cuid())
-  startDate  DateTime
-  endDate    DateTime
-  status     BookingStatus @default(PENDING)
-  totalPrice Decimal?      @db.Decimal(10, 2)
-  notes      String?
-  createdAt  DateTime      @default(now())
-
-  petId    String
-  pet      Pet       @relation(fields: [petId], references: [id])
-  ownerId  String
-  owner    PetOwner  @relation("BookingOwner", fields: [ownerId], references: [id])
-  sitterId String
-  sitter   PetSitter @relation("BookingSitter", fields: [sitterId], references: [id])
-  review   Review?
-}
-
-enum BookingStatus {
-  PENDING
-  CONFIRMED
-  COMPLETED
-  CANCELLED
-}
-
-model Review {
-  id        String   @id @default(cuid())
-  rating    Int
-  comment   String?
-  createdAt DateTime @default(now())
-
-  bookingId String  @unique
-  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  authorId  String
-  author    User    @relation("ReviewAuthor", fields: [authorId], references: [id])
-  targetId  String
-  target    User    @relation("ReviewTarget", fields: [targetId], references: [id])
-}
-
-model Message {
-  id        String   @id @default(cuid())
-  content   String
-  isRead    Boolean  @default(false)
-  createdAt DateTime @default(now())
-
-  senderId    String
-  sender      User   @relation("MessageSender", fields: [senderId], references: [id])
-  recipientId String
-  recipient   User   @relation("MessageRecipient", fields: [recipientId], references: [id])
-}
-
-// NextAuth models
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -148,10 +34,109 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  userType      UserType  @default(PETOWNER)
+  location      String?
+  bio           String?   @db.Text
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  @@unique([identifier, token])
+  accounts   Account[]
+  sessions   Session[]
+  petSitter  PetSitter?
+  petOwner   PetOwner?
+  reviews    Review[]   @relation("ReviewAuthor")
+  reviewsFor Review[]   @relation("ReviewSubject")
+}
+
+enum UserType {
+  PETOWNER
+  PETSITTER
+}
+
+model PetSitter {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  experience      String?  @db.Text
+  rate            Decimal  @default(0)
+  servicesOffered String[] @default([])
+  availability    Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookings Booking[] @relation("SitterBookings")
+}
+
+model PetOwner {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  preferences Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pets     Pet[]
+  bookings Booking[] @relation("OwnerBookings")
+}
+
+model Pet {
+  id          String   @id @default(cuid())
+  name        String
+  type        String
+  breed       String?
+  age         Int?
+  description String?  @db.Text
+  imageUrl    String?
+  ownerId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  owner    PetOwner  @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  bookings Booking[] @relation("PetBookings")
+}
+
+model Booking {
+  id        String        @id @default(cuid())
+  startDate DateTime
+  endDate   DateTime
+  status    BookingStatus @default(PENDING)
+  notes     String?       @db.Text
+  price     Decimal       @default(0)
+  ownerId   String
+  sitterId  String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  owner   PetOwner  @relation("OwnerBookings", fields: [ownerId], references: [id])
+  sitter  PetSitter @relation("SitterBookings", fields: [sitterId], references: [id])
+  pets    Pet[]     @relation("PetBookings")
+  reviews Review[]
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int
+  comment   String?  @db.Text
+  authorId  String
+  subjectId String
+  bookingId String?
+  createdAt DateTime @default(now())
+
+  author  User     @relation("ReviewAuthor", fields: [authorId], references: [id])
+  subject User     @relation("ReviewSubject", fields: [subjectId], references: [id])
+  booking Booking? @relation(fields: [bookingId], references: [id])
 }

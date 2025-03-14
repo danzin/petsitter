@@ -1,41 +1,45 @@
-import { User } from "@prisma/client";
+// repositories/UserRepository.ts
 import { injectable, inject } from "tsyringe";
-import { PrismaClientService } from "../lib/prisma/prismaClient";
+import { PrismaClient, User, Prisma, UserType } from "@prisma/client";
 
 @injectable()
 export class UserRepository {
-  constructor(
-    @inject(PrismaClientService) private prismaService: PrismaClientService
-  ) {}
-
-  async findByEmail(email: string): Promise<User | null> {
-    return this.prismaService.client.user.findUnique({
-      where: { email },
-    });
-  }
+  constructor(@inject("PrismaClient") private prisma: PrismaClient) {}
 
   async findById(id: string): Promise<User | null> {
-    return this.prismaService.client.user.findUnique({
+    return this.prisma.user.findUnique({
       where: { id },
     });
   }
 
-  async create(data: Partial<User>): Promise<User> {
-    return this.prismaService.client.user.create({
-      data: data as any,
+  async findByEmail(email: string): Promise<User | null> {
+    return this.prisma.user.findUnique({
+      where: { email },
     });
   }
 
-  async update(id: string, data: Partial<User>): Promise<User> {
-    return this.prismaService.client.user.update({
+  async create(data: Prisma.UserCreateInput): Promise<User> {
+    return this.prisma.user.create({
+      data,
+    });
+  }
+
+  async update(id: string, data: Prisma.UserUpdateInput): Promise<User> {
+    return this.prisma.user.update({
       where: { id },
       data,
     });
   }
 
-  async delete(id: string): Promise<void> {
-    await this.prismaService.client.user.delete({
+  async getFullProfile(id: string): Promise<any> {
+    const user = await this.prisma.user.findUnique({
       where: { id },
+      include: {
+        petSitter: true,
+        petOwner: true,
+      },
     });
+
+    return user;
   }
 }
