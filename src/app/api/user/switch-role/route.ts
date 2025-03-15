@@ -1,4 +1,3 @@
-// app/api/user/switch-role/route.ts
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/lib/auth/authContext";
 import { container } from "@/lib/container";

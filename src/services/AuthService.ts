@@ -1,4 +1,3 @@
-// services/AuthService.ts
 import { injectable, inject } from "tsyringe";
 import { UserRepository } from "../repositories/UserRepository";
 import { SitterRepository } from "../repositories/SitterRepository";
