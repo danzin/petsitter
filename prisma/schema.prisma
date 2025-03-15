@@ -1,0 +1,143 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//for utilizing 3rd party sign in options
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  userType      UserType  @default(PETOWNER)
+  location      String?
+  bio           String?   @db.Text
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts   Account[]
+  sessions   Session[]
+  petSitter  PetSitter?
+  petOwner   PetOwner?
+  reviews    Review[]   @relation("ReviewAuthor")
+  reviewsFor Review[]   @relation("ReviewSubject")
+}
+
+enum UserType {
+  PETOWNER
+  PETSITTER
+}
+
+model PetSitter {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  experience      String?  @db.Text
+  rate            Decimal  @default(0)
+  servicesOffered String[] @default([])
+  availability    Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookings Booking[] @relation("SitterBookings")
+}
+
+model PetOwner {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  preferences Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pets     Pet[]
+  bookings Booking[] @relation("OwnerBookings")
+}
+
+model Pet {
+  id          String   @id @default(cuid())
+  name        String
+  type        String
+  breed       String?
+  age         Int?
+  description String?  @db.Text
+  imageUrl    String?
+  ownerId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  owner    PetOwner  @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  bookings Booking[] @relation("PetBookings")
+}
+
+model Booking {
+  id        String        @id @default(cuid())
+  startDate DateTime
+  endDate   DateTime
+  status    BookingStatus @default(PENDING)
+  notes     String?       @db.Text
+  price     Decimal       @default(0)
+  ownerId   String
+  sitterId  String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  owner   PetOwner  @relation("OwnerBookings", fields: [ownerId], references: [id])
+  sitter  PetSitter @relation("SitterBookings", fields: [sitterId], references: [id])
+  pets    Pet[]     @relation("PetBookings")
+  reviews Review[]
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int
+  comment   String?  @db.Text
+  authorId  String
+  subjectId String
+  bookingId String?
+  createdAt DateTime @default(now())
+
+  author  User     @relation("ReviewAuthor", fields: [authorId], references: [id])
+  subject User     @relation("ReviewSubject", fields: [subjectId], references: [id])
+  booking Booking? @relation(fields: [bookingId], references: [id])
+}
