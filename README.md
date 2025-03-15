@@ -40,6 +40,7 @@ This app is not production-ready. Many features are still under development, and
  - Clone the repository and navigate to the directory
 
    `git clone https://github.com/danzin/petsitter.git`
+   
    `cd petsitter`
 - Install dependencies
 
