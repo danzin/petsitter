@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { UserType } from "@prisma/client";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PetOwnerDashboard from "@/components/dashboard/PetOwnerDashboard";
 import PetSitterDashboard from "@/components/dashboard/PetSitterDashboard";
 import { Button } from "@/components/ui/button";

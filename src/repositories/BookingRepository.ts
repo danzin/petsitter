@@ -1,4 +1,4 @@
-import { Booking, BookingStatus } from "@prisma/client";
+import { Booking, BookingStatus, Prisma } from "@prisma/client";
 import { injectable, inject } from "tsyringe";
 import { PrismaClientService } from "../lib/prisma/prismaClient";
 import { CreateBookingDTO, UpdateBookingDTO } from "../dtos/BookingDTO";
@@ -29,15 +29,10 @@ export class BookingRepository {
     });
   }
 
-  async update(id: string, data: UpdateBookingDTO): Promise<Booking> {
+  async update(id: string, data: Prisma.BookingUpdateInput): Promise<Booking> {
     return this.prismaService.client.booking.update({
       where: { id },
-      data: {
-        ...data,
-        ...(data.petIds && {
-          pets: { set: data.petIds.map((id) => ({ id })) },
-        }),
-      },
+      data,
       include: {
         pets: true,
         owner: { include: { user: true } },

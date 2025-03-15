@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
         userType,
       });
 
-      // Exclude password from response
+      // Remove sensitive data
       const { password: _, ...userWithoutPassword } = user;
 
       return NextResponse.json(

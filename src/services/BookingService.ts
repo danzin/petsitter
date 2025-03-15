@@ -79,8 +79,8 @@ export class BookingService {
       notes: data.notes,
       status: BookingStatus.PENDING,
       price,
-      ownerId: owner.id, // Use direct ID
-      sitterId: sitter.id, // Use direct ID
+      ownerId: owner.id,
+      sitterId: sitter.id,
       petIds: data.petIds,
     });
   }
@@ -108,18 +108,27 @@ export class BookingService {
       updateData = this.handleSitterUpdates(data);
     }
 
-    return this.bookingRepository.update(id, updateData);
+    // Transform updateData to Prisma-compatible format
+    const prismaUpdateData: Prisma.BookingUpdateInput = {
+      ...updateData,
+      ...(data.status && { status: { set: data.status } }),
+    };
+
+    return this.bookingRepository.update(id, prismaUpdateData);
   }
+
   private handleOwnerUpdates(
     data: UpdateBookingDTO,
     booking: Booking
   ): Prisma.BookingUpdateInput {
     if (booking.status !== BookingStatus.PENDING) {
-      return { notes: data.notes };
+      return {
+        notes: data.notes || booking.notes, // Keep existing notes if not provided
+      };
     }
 
     return {
-      notes: data.notes,
+      notes: data.notes || booking.notes,
       ...(data.petIds && {
         pets: { set: data.petIds.map((id) => ({ id })) },
       }),
@@ -127,9 +136,14 @@ export class BookingService {
       ...(data.endDate && { endDate: new Date(data.endDate) }),
     };
   }
+
   private handleSitterUpdates(
     data: UpdateBookingDTO
   ): Prisma.BookingUpdateInput {
+    if (data.status && !Object.values(BookingStatus).includes(data.status)) {
+      throw new Error("Invalid status");
+    }
+
     return {
       ...(data.status && { status: data.status }),
     };

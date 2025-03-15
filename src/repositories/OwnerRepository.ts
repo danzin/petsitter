@@ -1,4 +1,3 @@
-// repositories/OwnerRepository.ts
 import { injectable, inject } from "tsyringe";
 import { PrismaClient, PetOwner, Prisma } from "@prisma/client";
 

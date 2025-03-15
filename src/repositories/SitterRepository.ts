@@ -1,4 +1,3 @@
-// repositories/SitterRepository.ts
 import { injectable, inject } from "tsyringe";
 import { PrismaClient, PetSitter, Prisma } from "@prisma/client";
 
@@ -42,12 +41,12 @@ export class SitterRepository {
     // Implementation for finding available sitters based on filters
     return this.prisma.petSitter.findMany({
       where: {
-        // Add filter conditions based on parameters
+        // filter conditions based on parameters
         ...(filters.location && { user: { location: filters.location } }),
         ...(filters.services && {
           servicesOffered: { hasSome: filters.services },
         }),
-        // Add availability checks as needed
+        // availability checks
       },
       include: {
         user: {

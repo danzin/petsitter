@@ -3,6 +3,9 @@ import { getAuthSession } from "@/lib/auth/authContext";
 import { container } from "@/lib/container";
 import { UserRepository } from "@/repositories/UserRepository";
 import { UserType } from "@prisma/client";
+import { OwnerService } from "@/services/OwnerService";
+import { SitterService } from "@/services/SitterService";
+import { UserService } from "@/services/UserService";
 
 export async function POST(req: Request) {
   try {
@@ -22,12 +25,30 @@ export async function POST(req: Request) {
       );
     }
 
-    const userRepository = container.resolve(
-      "UserRepository"
-    ) as UserRepository;
+    const userService = container.resolve("UserService") as UserService;
+    const petOwnerService = container.resolve("OwnerService") as OwnerService;
+    const petSitterService = container.resolve(
+      "SitterService"
+    ) as SitterService;
 
     // Update user's role
-    await userRepository.update(session.user.id, { userType });
+    await userService.updateUserProfile(session.user.id, { userType });
+
+    if (userType === UserType.PETOWNER) {
+      const petOwnerExists = await petOwnerService.checkProfileExists(
+        session.user.id
+      );
+      if (!petOwnerExists) {
+        await petOwnerService.createOwnerProfile(session.user.id, {});
+      }
+    } else if (userType === UserType.PETSITTER) {
+      const petSitterExists = await petSitterService.checkProfileExists(
+        session.user.id
+      );
+      if (!petSitterExists) {
+        await petSitterService.createSitterProfile(session.user.id, {});
+      }
+    }
 
     return NextResponse.json(
       { message: "User role updated successfully", userType },

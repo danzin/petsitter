@@ -7,6 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+//for utilizing 3rd party sign in options
 model Account {
   id                String  @id @default(cuid())
   userId            String
