@@ -1,4 +1,3 @@
-// repositories/UserRepository.ts
 import { injectable, inject } from "tsyringe";
 import { PrismaClient, User, Prisma, UserType } from "@prisma/client";
 

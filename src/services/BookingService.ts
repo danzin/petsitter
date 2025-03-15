@@ -1,4 +1,3 @@
-// services/BookingService.ts
 import { injectable, inject } from "tsyringe";
 import { BookingRepository } from "@/repositories/BookingRepository";
 import { OwnerRepository } from "@/repositories/OwnerRepository";
