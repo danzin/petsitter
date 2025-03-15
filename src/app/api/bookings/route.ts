@@ -4,9 +4,10 @@ import { BookingService } from "@/services/BookingService";
 import { getAuthSession } from "@/lib/auth/authContext";
 import { BookingStatus, Prisma } from "@prisma/client";
 const bookingService = container.resolve(BookingService);
-const session = await getAuthSession();
 export async function GET() {
   try {
+    const session = await getAuthSession();
+
     if (!session || !session.user.id) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
@@ -25,6 +26,8 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getAuthSession();
+
     const { startDate, endDate, notes, petIds, ownerId, sitterId } =
       await req.json();
 
@@ -71,16 +74,24 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    const session = await getAuthSession();
+
     const { startDate, endDate, notes, status } = await req.json();
+    if (!session || !session.user.id) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
 
     try {
-      const booking = await bookingService.updateBooking(session?.user.id, {
-        bookingId: params.id,
-        startDate: startDate ? new Date(startDate) : undefined,
-        endDate: endDate ? new Date(endDate) : undefined,
-        notes,
-        status,
-      });
+      const booking = await bookingService.updateBooking(
+        params.id,
+        session?.user.id,
+        {
+          startDate: startDate ? new Date(startDate) : undefined,
+          endDate: endDate ? new Date(endDate) : undefined,
+          notes,
+          status,
+        }
+      );
 
       return NextResponse.json(
         { message: "Booking updated successfully", booking },

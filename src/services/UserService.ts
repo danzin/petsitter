@@ -23,6 +23,7 @@ export class UserService {
       bio?: string;
       location?: string;
       image?: string;
+      userType: UserType;
     }
   ): Promise<User> {
     return this.userRepository.update(id, data);

@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
           { status: 401 }
         );
       } else {
-        throw error; // Re-throw for the outer catch block
+        throw error;
       }
     }
   } catch (error) {

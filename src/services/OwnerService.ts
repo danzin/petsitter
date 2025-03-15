@@ -117,7 +117,6 @@ export class OwnerService {
       throw new Error("Owner profile not found");
     }
 
-    // Verify pet ownership
     const pet = await this.prisma.pet.findFirst({
       where: {
         id: petId,

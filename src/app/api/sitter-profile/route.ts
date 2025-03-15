@@ -9,6 +9,32 @@ const userRepository = container.resolve("UserRepository") as UserRepository;
 const sitterRepository = container.resolve(
   "SitterRepository"
 ) as SitterRepository;
+
+export async function GET(req: Request) {
+  try {
+    const session = await getAuthSession();
+    if (!session || !session.user.id) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    const sitterProfile = await sitterRepository.findByUserId(session.user.id);
+    if (!sitterProfile) {
+      return NextResponse.json(
+        { message: "Sitter profile not found" },
+        { status: 404 }
+      );
+    }
+    console.log(`------SITTER PROFILE-------: ${sitterProfile.rate} `);
+    return NextResponse.json({ profile: sitterProfile }, { status: 200 });
+  } catch (error) {
+    console.error("Error getting sitter profile:", error);
+    return NextResponse.json(
+      { message: "Something went wrong" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const session = await getAuthSession();
