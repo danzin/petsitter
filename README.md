@@ -14,12 +14,12 @@ The project is under development. Currently, users can:
  - Register an account as either a pet sitter or a pet owner, secured using NextAuth.
  - Edit user account, set services they offer, hourly rate, bio etc.
  - Seamlessly switch between pet sitters and pet owners through the user dashboard.
- - Search for sitters
+ - Search Functionality: Effortlessly find the perfect sitter based on your preferences.
 
 What's on the horizon: 
 
  - Booking System: Schedule and manage pet sitting appointments.
- - Search Functionality: Effortlessly find the perfect sitter based on your preferences.
+ - Review system: Leave a review after an appointment. 
 
 
 ## 📸 Preview
