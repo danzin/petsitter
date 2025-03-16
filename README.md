@@ -14,6 +14,7 @@ The project is under development. Currently, users can:
  - Register an account as either a pet sitter or a pet owner, secured using NextAuth.
  - Edit user account, set services they offer, hourly rate, bio etc.
  - Seamlessly switch between pet sitters and pet owners through the user dashboard.
+ - Search for sitters
 
 What's on the horizon: 
 
