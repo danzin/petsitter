@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
+
+import { SearchForm } from '@/components/search/SearchForm';
 
 export default function Home() {
   return (
@@ -15,36 +15,7 @@ export default function Home() {
               <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Your pet's home away from home</h1>
               <p className="text-lg text-gray-600 mb-6">Connect with trusted pet sitters in your area</p>
               
-              <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-                <form className="space-y-4">
-                  <div>
-                    <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">Where</label>
-                    <div className="relative">
-                      <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                      <Input id="location" placeholder="Enter your location" className="pl-10" />
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label htmlFor="dropoff" className="block text-sm font-medium text-gray-700 mb-1">Drop-off</label>
-                      <Input id="dropoff" type="date" />
-                    </div>
-                    <div>
-                      <label htmlFor="pickup" className="block text-sm font-medium text-gray-700 mb-1">Pick-up</label>
-                      <Input id="pickup" type="date" />
-                    </div>
-                  </div>
-                  
-                  <Link href="/search" className="block w-full">
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700">Find a Pet Sitter</Button>
-                  </Link>
-                </form>
-              </div>
-              
-              <Link href="/join">
-                <Button variant="outline" className="w-full">Get Started</Button>
-              </Link>
+              <SearchForm/>
             </div>
             
             <div className="hidden md:block">
