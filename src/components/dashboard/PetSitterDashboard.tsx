@@ -81,7 +81,7 @@ export default function PetSitterDashboard() {
               </div>
               <Button 
                 className="w-full mt-2"
-                onClick={() => router.push("/sitter-profile-edit")}
+                onClick={() => router.push("/sitter-profile-setup")}
               >
                 Edit Profile
               </Button>
