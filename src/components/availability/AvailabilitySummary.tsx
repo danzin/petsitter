@@ -6,6 +6,7 @@ interface AvailabilitySummaryProps {
   availability: any;
 }
 
+// Compoent accepts a prop, using explicit typing to ensure type safety. 
 export const AvailabilitySummary: React.FC<AvailabilitySummaryProps> = ({ availability }) => {
   if (!availability) {
     return (
