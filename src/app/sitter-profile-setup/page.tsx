@@ -36,6 +36,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Loader2 } from "lucide-react";
 
 const profileSchema = z.object({
   bio: z.string().min(10, {
@@ -77,7 +78,7 @@ export default  function SitterProfileSetup() {
   });
 
   if (status === "loading") {
-    return <div className="container mx-auto p-4 text-center">Loading...</div>;
+    return <div className="container mx-auto p-4 text-center"><Loader2/></div>;
   }
 
   if (status === "unauthenticated") {

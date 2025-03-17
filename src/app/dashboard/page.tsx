@@ -7,6 +7,8 @@ import PetOwnerDashboard from "@/components/dashboard/PetOwnerDashboard";
 import PetSitterDashboard from "@/components/dashboard/PetSitterDashboard";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { Loader, Loader2 } from "lucide-react";
+
 import axios from "axios";
 
 export default function DashboardPage() {
@@ -14,6 +16,7 @@ export default function DashboardPage() {
   const [userType, setUserType] = useState<UserType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+
 
   useEffect(() => {
     if (status === "authenticated" && session?.user) {
@@ -56,7 +59,7 @@ export default function DashboardPage() {
   };
 
   if (isLoading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return <div className="flex justify-center items-center h-screen"><Loader2/></div>;
   }
 
   return (

@@ -1,16 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookingStatus } from "@prisma/client";
+import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 
 export default function PetOwnerDashboard() {
-  const { data: session } = useSession();
   const [bookings, setBookings] = useState([]);
   const [pets, setPets] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,7 +35,7 @@ export default function PetOwnerDashboard() {
   }, []);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div><Loader2/></div>;
   }
 
   return (

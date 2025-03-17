@@ -1,16 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookingStatus } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { Loader2 } from "lucide-react";
+import { AvailabilitySummary } from "@/components/availability/AvailabilitySummary";
 
 export default function PetSitterDashboard() {
-  const { data: session } = useSession();
   const [bookings, setBookings] = useState<any[]>([]);
   const [sitterProfile, setSitterProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -47,7 +47,11 @@ export default function PetSitterDashboard() {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
   }
 
   return (
@@ -75,10 +79,7 @@ export default function PetSitterDashboard() {
                   )}
                 </ul>
               </div>
-              <div>
-                <p className="text-sm font-medium">Availability:</p>
-                <p>{sitterProfile?.availability ? "Available" : "Not set"}</p>
-              </div>
+           
               <Button 
                 className="w-full mt-2"
                 onClick={() => router.push("/sitter-profile-setup")}
@@ -233,7 +234,13 @@ export default function PetSitterDashboard() {
           <CardTitle>Availability Management</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="mb-4">Set your availability to let pet owners know when you're free</p>
+          {sitterProfile?.availability ?  
+           <div className="mb-4">
+              <AvailabilitySummary availability={sitterProfile?.availability} />
+            </div> :
+            <p className="mb-4">Set your availability to let pet owners know when you're free</p>
+          }
+         
           <Button onClick={() => router.push("/availability")}>
             Manage Availability
           </Button>
