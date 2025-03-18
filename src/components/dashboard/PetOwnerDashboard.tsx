@@ -67,7 +67,7 @@ export default function PetOwnerDashboard() {
               )}
               <Button 
                 className="w-full mt-4"
-                onClick={() => router.push("/pets/add")}
+                onClick={() => router.push("/pets")}
               >
                 Add New Pet
               </Button>

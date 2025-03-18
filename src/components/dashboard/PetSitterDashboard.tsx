@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookingStatus } from "@prisma/client";
+import { Booking, BookingStatus, Pet } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Loader2 } from "lucide-react";
@@ -103,12 +103,12 @@ export default function PetSitterDashboard() {
               </TabsList>
               
               <TabsContent value="upcoming">
-                {bookings.filter((booking: any) => 
+                {bookings.filter((booking: Booking) => 
                   booking.status === BookingStatus.CONFIRMED
                 ).length > 0 ? (
                   <div className="space-y-4">
                     {bookings
-                      .filter((booking: any) => booking.status === BookingStatus.CONFIRMED)
+                      .filter((booking: Booking) => booking.status === BookingStatus.CONFIRMED)
                       .map((booking: any) => (
                         <Card key={booking.id}>
                           <CardContent className="pt-4">
@@ -140,12 +140,12 @@ export default function PetSitterDashboard() {
               </TabsContent>
 
               <TabsContent value="pending">
-                {bookings.filter((booking: any) => 
+                {bookings.filter((booking: Booking) => 
                   booking.status === BookingStatus.PENDING
                 ).length > 0 ? (
                   <div className="space-y-4">
                     {bookings
-                      .filter((booking: any) => booking.status === BookingStatus.PENDING)
+                      .filter((booking: Booking) => booking.status === BookingStatus.PENDING)
                       .map((booking: any) => (
                         <Card key={booking.id}>
                           <CardContent className="pt-4">
@@ -157,7 +157,7 @@ export default function PetSitterDashboard() {
                                   {new Date(booking.endDate).toLocaleDateString()}
                                 </p>
                                 <p className="text-sm mt-1">
-                                  Pets: {booking.pets.map((pet: any) => pet.name).join(", ")}
+                                  Pets: {booking.pets.map((pet: Pet) => pet.name).join(", ")}
                                 </p>
                               </div>
                               <div className="flex gap-2">

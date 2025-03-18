@@ -112,6 +112,39 @@ export async function PUT(
   }
 }
 
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getAuthSession();
+    const { status }: { status: BookingStatus } = await req.json();
+    if (!session || !session.user.id) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    if (status === "CANCELLED") {
+      await bookingService.cancelBooking(params.id, session.user.id);
+      return NextResponse.json(
+        { message: "Booking cancelled successfully" },
+        { status: 200 }
+      );
+    } else {
+      await bookingService.completeBooking(params.id, session.user.id);
+      return NextResponse.json(
+        { message: "Booking confirmed successfully" },
+        { status: 200 }
+      );
+    }
+  } catch (error) {
+    console.error("Booking update error:", error);
+    return NextResponse.json(
+      { message: "Something went wrong" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
