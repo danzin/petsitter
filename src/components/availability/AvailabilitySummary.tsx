@@ -1,9 +1,8 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-
 interface AvailabilitySummaryProps {
-  availability: any;
+  availability: Availability | null;
 }
 
 // Compoent accepts a prop, using explicit typing to ensure type safety. 
@@ -53,16 +52,16 @@ export const AvailabilitySummary: React.FC<AvailabilitySummaryProps> = ({ availa
     );
   }
 
-  if (scheduleType === "dates" && selectedDates?.length > 0) {
+  if (scheduleType === "dates" && selectedDates && selectedDates?.length > 0) {
     return (
       <Card className="h-full">
         <CardContent className="p-4">
           <p className="text-sm font-medium mb-2">Specific Dates Schedule</p>
           <div className="flex flex-wrap gap-1">
-            {selectedDates.length > 0 ? (
+            {selectedDates?.length > 0 ? (
               <>
                 <Badge variant="outline" className="bg-green-50">
-                  {selectedDates.length} available date{selectedDates.length !== 1 ? "s" : ""}
+                  {selectedDates?.length} available date{selectedDates?.length !== 1 ? "s" : ""}
                 </Badge>
                 
                 {blockedDates && blockedDates.length > 0 && (
