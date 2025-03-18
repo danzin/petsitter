@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookingStatus } from "@prisma/client";
+import { BookingStatus, Pet } from "@prisma/client";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -49,7 +49,7 @@ export default function PetOwnerDashboard() {
             <div className="space-y-2">
               {pets.length > 0 ? (
                 <ul className="space-y-2">
-                  {pets.map((pet: any) => (
+                  {pets.map((pet: Pet) => (
                     <li key={pet.id} className="flex justify-between items-center">
                       <span>{pet.name} ({pet.type})</span>
                       <Button
