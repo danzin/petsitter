@@ -5,9 +5,9 @@ import { useSession } from "next-auth/react";
 import { UserType } from "@prisma/client";
 import PetOwnerDashboard from "@/components/dashboard/PetOwnerDashboard";
 import PetSitterDashboard from "@/components/dashboard/PetSitterDashboard";
-import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { Loader, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import RoleSwitch from "@/components/role-switch/RoleSwitch";
 
 import axios from "axios";
 
@@ -67,18 +67,7 @@ export default function DashboardPage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Your Dashboard</h1>
         <div className="flex gap-4">
-          <Button 
-            variant={userType === UserType.PETOWNER ? "default" : "outline"}
-            onClick={() => switchRole(UserType.PETOWNER)}
-          >
-            Pet Owner Mode
-          </Button>
-          <Button 
-            variant={userType === UserType.PETSITTER ? "default" : "outline"}
-            onClick={() => switchRole(UserType.PETSITTER)}
-          >
-            Pet Sitter Mode
-          </Button>
+          <RoleSwitch userType={userType as UserType } switchRole={switchRole}/>
         </div>
       </div>
 

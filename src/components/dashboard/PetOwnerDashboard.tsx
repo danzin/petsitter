@@ -43,7 +43,15 @@ export default function PetOwnerDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>My Pets</CardTitle>
+            <CardTitle>
+              <div className="flex justify-between">
+                <div>My Pets
+                </div>
+                <Button variant="outline" onClick={() => router.push(`/pets`)}>Manage 
+                </Button>
+              </div>
+             
+              </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
@@ -67,7 +75,7 @@ export default function PetOwnerDashboard() {
               )}
               <Button 
                 className="w-full mt-4"
-                onClick={() => router.push("/pets/add")}
+                onClick={() => router.push("/pets")}
               >
                 Add New Pet
               </Button>

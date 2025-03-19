@@ -3,17 +3,30 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 import { SearchForm } from '@/components/search/SearchForm';
+import { Separator } from '@radix-ui/react-separator';
 
 export default function Home() {
   return (
     <main>
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-blue-50 to-white">
-        <div className="container mx-auto px-4 py-16 md:py-24">
+        <div className="container mx-auto px-4 py-12 md:py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>
               <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Your pet's home away from home</h1>
-              <p className="text-lg text-gray-600 mb-6">Connect with trusted pet sitters in your area</p>
+              <p className="text-lg text-gray-600 mb-2">Connect with trusted pet sitters in your area</p>
+              
+
+              <div className='container mx-auto pb-4'>
+                <div className='flex gap-3 justify-baseline'>
+                  <p className='text-md text-gray-600 pt-1'>Already have an account?</p>
+                  <div>
+                  <Link href="/login">
+                    <Button size="sm" variant="outline">Log in</Button>
+                  </Link>
+                  </div>
+                </div>
+              </div>
               
               <SearchForm/>
             </div>
@@ -30,10 +43,12 @@ export default function Home() {
             </div>
           </div>
         </div>
+       
       </section>
 
       {/* How It Works Section */}
       <section className="py-16 bg-white">
+
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
           
