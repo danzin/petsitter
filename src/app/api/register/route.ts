@@ -4,7 +4,7 @@ import { AuthService } from "@/services/AuthService";
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, name, userType } = await req.json();
+    const { email, password, name, userType, location } = await req.json();
 
     if (!email || !password) {
       return NextResponse.json(
@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
         password,
         name,
         userType,
+        location,
       });
 
       // Remove sensitive data
