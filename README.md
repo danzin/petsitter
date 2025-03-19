@@ -15,6 +15,7 @@ The project is under development. Currently, users can:
  - Edit user account, set services they offer, hourly rate, bio, availability.
  - Seamlessly switch between pet sitters and pet owners through the user dashboard.
  - Search Functionality: Effortlessly find the perfect sitter based on your preferences.
+ - Add and edit pets
 
 What's on the horizon: 
 
