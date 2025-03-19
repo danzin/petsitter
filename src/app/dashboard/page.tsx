@@ -7,9 +7,9 @@ import PetOwnerDashboard from "@/components/dashboard/PetOwnerDashboard";
 import PetSitterDashboard from "@/components/dashboard/PetSitterDashboard";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import RoleSwitch from "@/components/role-switch/RoleSwitch";
 
 import axios from "axios";
-import RoleSwitch from "@/components/role-switch/RoleSwitch";
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
