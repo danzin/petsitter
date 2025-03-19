@@ -1,5 +1,3 @@
-// File: app/api/pets/[id]/route.ts
-
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession } from "@/lib/auth/authContext";
 import { container } from "@/lib/container";
