@@ -30,13 +30,14 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Pet } from "@prisma/client";
+import Link from "next/link";
 
 
 const initialPetState: Partial<Pet> = {
   name: "",
   type: "",
   breed: "",
-  age: null,  // Now TypeScript knows it should be 'number | null'
+  age: null,  
   description: "",
   imageUrl: "",
 };
@@ -140,7 +141,13 @@ export default function PetsPage() {
 
   return (
     <div className="space-y-6">
+
       <Card>
+        <Link href='/dashboard'>
+          <Button>
+            Back to Dashboard
+          </Button>
+        </Link>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle>My Pets</CardTitle>
@@ -154,6 +161,8 @@ export default function PetsPage() {
             <PlusCircle className="mr-2 h-4 w-4" />
             Add New Pet
           </Button>
+         
+
         </CardHeader>
         <CardContent>
           {error && <div className="text-red-500 mb-4">{error}</div>}

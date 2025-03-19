@@ -15,7 +15,7 @@ export async function GET(
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const id = params.id;
+    const { id } = await params; //await params because '`params` should be awaited before using its properties.'
     const ownerService = container.resolve(OwnerService);
 
     // Might need to create a separate method in the service layer to get a specific pet with ownership verification
@@ -46,7 +46,7 @@ export async function PUT(
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const petId = params.id;
+    const { id } = await params;
     const body = await request.json();
     const { name, type, breed, age, description, imageUrl } = body;
 
@@ -58,7 +58,7 @@ export async function PUT(
     }
 
     const ownerService = container.resolve(OwnerService);
-    const updatedPet = await ownerService.updatePet(petId, session.user.id, {
+    const updatedPet = await ownerService.updatePet(id, session.user.id, {
       name,
       type,
       breed,
