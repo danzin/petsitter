@@ -59,12 +59,13 @@ export class SitterService {
   async findAvailableSitters(
     filters: SitterSearchFilters
   ): Promise<PetSitter[]> {
-    return this.sitterRepository.getAvailableSitters({
+    const sitter = this.sitterRepository.getAvailableSitters({
       location: filters.location,
       services: filters.services,
       startDate: filters.startDate,
       endDate: filters.endDate,
     });
+    return sitter;
   }
 
   async checkProfileExists(userId: string): Promise<boolean> {

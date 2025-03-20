@@ -53,14 +53,39 @@ export function createAuthOptions(): NextAuthOptions {
     },
     callbacks: {
       async jwt({ token, user }) {
+        const prismaService = container.resolve(PrismaClientService);
+
+        // Initial user login
         if (user) {
           token.id = user.id;
           token.name = user.name;
           token.userType = (user as any).userType;
         }
+
+        if (token.id) {
+          const dbUser = await prismaService.client.user.findUnique({
+            where: { id: token.id },
+          });
+
+          if (!dbUser) {
+            token.isValid = false;
+          } else {
+            token.isValid = true;
+            token.name = dbUser.name;
+            token.userType = dbUser.userType;
+          }
+        }
+
         return token;
       },
       async session({ session, token }) {
+        // Invalidate session if user not found
+        if (token.isValid === false) {
+          session.user = null;
+
+          session.expires = new Date(0).toISOString(); // Expire immediately
+          return session;
+        }
         if (token && session && session.user) {
           session.user.id = token.id as string;
           session.user.name = token.name;

@@ -4,10 +4,12 @@ import { UserType } from "@prisma/client";
 declare module "next-auth" {
   // extend the session
   interface Session {
-    user: {
-      id: string; // match the prisma user.id
-      userType: UserType; // make use of the userType enum
-    } & DefaultSession["user"]; // include default props (name, email, image)
+    user:
+      | ({
+          id: string; // match the prisma user.id
+          userType: UserType; // make use of the userType enum
+        } & DefaultSession["user"])
+      | null; // include default props (name, email, image)
   }
 
   // extend the user type providers

@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
     const sort = searchParams.get("sort");
 
     // Location is always requird
+    console.log(location);
     if (!location) {
       return NextResponse.json(
         { error: "Location is required" },
@@ -31,6 +32,7 @@ export async function GET(request: NextRequest) {
       startDate: startDate ? new Date(startDate) : undefined,
       endDate: endDate ? new Date(endDate) : undefined,
     });
+    console.log(sitters);
 
     // Apply additional filters
     let filteredSitters = [...sitters];
@@ -88,7 +90,7 @@ export async function POST(request: NextRequest) {
   try {
     const sitterService = container.resolve(SitterService);
     const filters = await request.json();
-
+    console.log(filters.location);
     // Always need location
     if (!filters.location) {
       return NextResponse.json(
