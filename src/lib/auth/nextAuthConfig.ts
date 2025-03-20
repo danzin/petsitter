@@ -79,18 +79,12 @@ export function createAuthOptions(): NextAuthOptions {
         return token;
       },
       async session({ session, token }) {
-        // Invalidate session if user not found
-        if (token.isValid === false) {
-          session.user = null;
-
-          session.expires = new Date(0).toISOString(); // Expire immediately
-          return session;
-        }
         if (token && session && session.user) {
           session.user.id = token.id as string;
           session.user.name = token.name;
           session.user.userType = token.userType;
         }
+
         return session;
       },
     },

@@ -8,7 +8,6 @@ import PetSitterDashboard from "@/components/dashboard/PetSitterDashboard";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import RoleSwitch from "@/components/role-switch/RoleSwitch";
-
 import axios from "axios";
 
 export default function DashboardPage() {

@@ -38,13 +38,17 @@ export class SitterRepository {
     startDate?: Date;
     endDate?: Date;
   }): Promise<PetSitter[]> {
-    const sitter = this.prisma.petSitter.findMany({
+    return this.prisma.petSitter.findMany({
       where: {
-        // filter conditions based on parameters
-        ...(filters.location && { user: { location: filters.location } }),
-        ...(filters.services && {
-          servicesOffered: { hasSome: filters.services },
-        }),
+        user: {
+          location: {
+            equals: filters.location,
+            mode: "insensitive",
+          },
+        },
+        servicesOffered: {
+          hasSome: filters.services || [],
+        },
       },
       include: {
         user: {
@@ -59,6 +63,5 @@ export class SitterRepository {
         },
       },
     });
-    return sitter;
   }
 }

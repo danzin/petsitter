@@ -2,25 +2,10 @@ import { getServerSession } from "next-auth/next";
 import { createAuthOptions } from "./nextAuthConfig";
 import { container } from "../container";
 import { PrismaClientService } from "../prisma/prismaClient";
-import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { redirect } from "next/navigation";
 
 export async function getAuthSession() {
-  const session = await getServerSession(createAuthOptions());
-
-  if (session?.user?.id) {
-    const prisma = container.resolve(PrismaClientService).client;
-    const dbUser = await prisma.user.findUnique({
-      where: { id: session.user.id },
-    });
-
-    if (!dbUser) {
-      (await cookies()).delete("next-auth.session-token");
-      return null;
-    }
-  }
-
-  return session;
+  return await getServerSession(createAuthOptions());
 }
 
 export async function getCurrentUser() {
@@ -29,12 +14,20 @@ export async function getCurrentUser() {
 }
 
 export async function validateSession() {
-  const user = await getCurrentUser();
+  const session = await getAuthSession();
 
-  if (!user) {
-    (await cookies()).delete("next-auth.session-token");
-    return NextResponse.redirect(new URL("/login", "http://localhost:3000"));
+  if (!session?.user?.id) {
+    redirect("/api/logout");
   }
 
-  return null;
+  const prisma = container.resolve(PrismaClientService).client;
+  const dbUser = await prisma.user.findUnique({
+    where: { id: session.user.id },
+  });
+
+  if (!dbUser) {
+    redirect("/api/logout");
+  }
+
+  return session.user;
 }
