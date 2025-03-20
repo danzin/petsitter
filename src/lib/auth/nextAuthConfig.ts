@@ -55,6 +55,7 @@ export function createAuthOptions(): NextAuthOptions {
       async jwt({ token, user }) {
         if (user) {
           token.id = user.id;
+          token.name = user.name;
           token.userType = (user as any).userType;
         }
         return token;
@@ -62,6 +63,7 @@ export function createAuthOptions(): NextAuthOptions {
       async session({ session, token }) {
         if (token && session && session.user) {
           session.user.id = token.id as string;
+          session.user.name = token.name;
           session.user.userType = token.userType;
         }
         return session;

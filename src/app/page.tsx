@@ -1,13 +1,16 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
 import { SearchForm } from '@/components/search/SearchForm';
-import { Separator } from '@radix-ui/react-separator';
+import { UserNavbar } from '@/components/user-navbar/UserNavbar';
+import { IUser } from '../../types/utils';
+import { getCurrentUser } from '@/lib/auth/getCurrentUser';
 
-export default function Home() {
+export default async function Home() {
+  const user = await getCurrentUser();
   return (
     <main>
+      <UserNavbar user ={ user as IUser }/>
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-blue-50 to-white">
         <div className="container mx-auto px-4 py-12 md:py-16">
@@ -16,8 +19,7 @@ export default function Home() {
               <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Your pet's home away from home</h1>
               <p className="text-lg text-gray-600 mb-2">Connect with trusted pet sitters in your area</p>
               
-
-              <div className='container mx-auto pb-4'>
+              { !user ? ( <div className='container mx-auto pb-4'>
                 <div className='flex gap-3 justify-baseline'>
                   <p className='text-md text-gray-600 pt-1'>Already have an account?</p>
                   <div>
@@ -26,7 +28,10 @@ export default function Home() {
                   </Link>
                   </div>
                 </div>
-              </div>
+              </div> ) : (<></>)
+                
+              }
+             
               
               <SearchForm/>
             </div>
