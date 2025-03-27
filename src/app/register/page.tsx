@@ -40,7 +40,7 @@ const registerSchema = z.object({
 export default function RegisterPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const userType = searchParams.get("type") === "sitter" ? UserType.PETSITTER : UserType.PETOWNER;
+  const userType = searchParams?.get("type") === "sitter" ? UserType.PETSITTER : UserType.PETOWNER;
 
   const [state, formAction, isPending] = useActionState(createUser, { message: "" });
 
