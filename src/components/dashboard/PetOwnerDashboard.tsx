@@ -133,7 +133,7 @@ export default function PetOwnerDashboard() {
                 )}
                 <Button 
                   className="w-full mt-4"
-                  onClick={() => router.push("/find-sitter")}
+                  onClick={() => router.push("/search")}
                 >
                   Find a Pet Sitter
                 </Button>

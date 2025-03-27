@@ -53,11 +53,29 @@ export function createAuthOptions(): NextAuthOptions {
     },
     callbacks: {
       async jwt({ token, user }) {
+        const prismaService = container.resolve(PrismaClientService);
+
+        // Initial user login
         if (user) {
           token.id = user.id;
           token.name = user.name;
           token.userType = (user as any).userType;
         }
+
+        if (token.id) {
+          const dbUser = await prismaService.client.user.findUnique({
+            where: { id: token.id },
+          });
+
+          if (!dbUser) {
+            token.isValid = false;
+          } else {
+            token.isValid = true;
+            token.name = dbUser.name;
+            token.userType = dbUser.userType;
+          }
+        }
+
         return token;
       },
       async session({ session, token }) {
@@ -66,6 +84,7 @@ export function createAuthOptions(): NextAuthOptions {
           session.user.name = token.name;
           session.user.userType = token.userType;
         }
+
         return session;
       },
     },

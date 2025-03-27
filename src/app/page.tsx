@@ -8,6 +8,7 @@ import { getCurrentUser } from '@/lib/auth/getCurrentUser';
 
 export default async function Home() {
   const user = await getCurrentUser();
+    console.log(user)
   return (
     <main>
       <UserNavbar user ={ user as IUser }/>

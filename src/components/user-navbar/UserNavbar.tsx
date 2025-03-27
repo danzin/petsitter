@@ -17,9 +17,15 @@ export function UserNavbar({ user }: NavbarProps) {
         <span className="text-gray-600">
           Welcome, {user.name}!
         </span>
+        <div className='flex gap-4'>
         <Link href="/dashboard">
           <Button size="sm">Dashboard</Button>
         </Link>
+        <Link href="/api/logout">
+          <Button size="sm">Logout</Button>
+        </Link>
+        </div>
+    
       </div>
     </nav>
   );

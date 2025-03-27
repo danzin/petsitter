@@ -1,5 +1,6 @@
 import { injectable, inject } from "tsyringe";
 import { PrismaClient, PetSitter, Prisma } from "@prisma/client";
+import { PetSitterWithUser } from "../../types/utils";
 
 @injectable()
 export class SitterRepository {
@@ -37,16 +38,28 @@ export class SitterRepository {
     services?: string[];
     startDate?: Date;
     endDate?: Date;
-  }): Promise<PetSitter[]> {
-    // Implementation for finding available sitters based on filters
+  }): Promise<PetSitterWithUser[]> {
     return this.prisma.petSitter.findMany({
       where: {
-        // filter conditions based on parameters
-        ...(filters.location && { user: { location: filters.location } }),
-        ...(filters.services && {
-          servicesOffered: { hasSome: filters.services },
-        }),
-        // availability checks
+        AND: [
+          filters.location
+            ? {
+                user: {
+                  location: {
+                    equals: filters.location,
+                    mode: "insensitive",
+                  },
+                },
+              }
+            : {},
+          filters.services?.length
+            ? {
+                servicesOffered: {
+                  hasSome: filters.services,
+                },
+              }
+            : {},
+        ],
       },
       include: {
         user: {

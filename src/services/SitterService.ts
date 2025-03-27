@@ -59,7 +59,7 @@ export class SitterService {
   async findAvailableSitters(
     filters: SitterSearchFilters
   ): Promise<PetSitter[]> {
-    return this.sitterRepository.getAvailableSitters({
+    return await this.sitterRepository.getAvailableSitters({
       location: filters.location,
       services: filters.services,
       startDate: filters.startDate,

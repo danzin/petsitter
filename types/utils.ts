@@ -1,4 +1,4 @@
-import { UserType } from "@prisma/client";
+import { PetSitter, UserType } from "@prisma/client";
 
 type Availability = {
   weekly?: string[];
@@ -13,3 +13,14 @@ export interface IUser {
   image?: string;
   userType: UserType;
 }
+
+export type PetSitterWithUser = PetSitter & {
+  user: {
+    id: string | null;
+    name: string | null;
+    email: string | null;
+    location: string | null;
+    bio: string | null;
+    image: string | null;
+  };
+};

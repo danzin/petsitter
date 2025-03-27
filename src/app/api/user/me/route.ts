@@ -7,7 +7,10 @@ export async function GET() {
   try {
     const session = await getAuthSession();
 
-    if (!session || !session.user.id) {
+    if (!session || !session.user) {
+      return NextResponse.redirect("/login");
+    }
+    if (!session || !session?.user.id) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
