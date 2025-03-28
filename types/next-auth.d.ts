@@ -8,8 +8,8 @@ declare module "next-auth" {
       | ({
           id: string; // match the prisma user.id
           userType: UserType; // make use of the userType enum
-        } & DefaultSession["user"])
-      | null; // include default props (name, email, image)
+        } & DefaultSession["user"]) // include default props (name, email, image)
+      | null;
   }
 
   // extend the user type providers

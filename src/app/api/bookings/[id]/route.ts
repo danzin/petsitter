@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { container } from "@/lib/container";
 import { BookingService } from "@/services/BookingService";
 
+const bookingService = container.resolve(BookingService);
+
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const bookingService = container.resolve(BookingService);
     const booking = await bookingService.getBookingById(params.id);
 
     if (!booking) {

@@ -1,6 +1,7 @@
 import { injectable, inject } from "tsyringe";
 import { SitterRepository } from "@/repositories/SitterRepository";
 import { PetSitter, Prisma } from "@prisma/client";
+import { PetSitterWithUser } from "../../types/utils";
 
 interface SitterProfileUpdateDTO {
   experience?: string;
@@ -24,8 +25,12 @@ export class SitterService {
     @inject("SitterRepository") private sitterRepository: SitterRepository
   ) {}
 
-  async getSitterProfile(userId: string): Promise<PetSitter | null> {
+  async getSitterProfileByUserId(userId: string): Promise<PetSitter | null> {
     return this.sitterRepository.findByUserId(userId);
+  }
+
+  async getSitterById(sitterId: string): Promise<PetSitterWithUser | null> {
+    return this.sitterRepository.findById(sitterId);
   }
 
   async createSitterProfile(
@@ -77,5 +82,9 @@ export class SitterService {
     availability: any
   ): Promise<PetSitter> {
     return this.sitterRepository.update(userId, { availability });
+  }
+
+  async findById(sitterId: string): Promise<PetSitterWithUser | null> {
+    return this.sitterRepository.findByUserId(sitterId);
   }
 }

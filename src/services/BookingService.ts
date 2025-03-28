@@ -36,6 +36,10 @@ export class BookingService {
     return this.bookingRepository.findByOwnerId(owner.id);
   }
 
+  async findBySitterId(sitterId: string): Promise<Booking[]> {
+    return this.bookingRepository.findBySitterId(sitterId);
+  }
+
   async getSitterBookings(userId: string): Promise<Booking[]> {
     const sitter = await this.sitterRepository.findByUserId(userId);
 
@@ -46,11 +50,11 @@ export class BookingService {
     return this.bookingRepository.findBySitterId(sitter.id);
   }
 
-  async createBooking(
-    userId: string,
-    data: CreateBookingDTO
-  ): Promise<Booking> {
-    const owner = await this.ownerRepository.findByUserId(userId);
+  async createBooking(data: CreateBookingDTO): Promise<Booking> {
+    if (data.endDate <= data.startDate) {
+      throw new Error("End date must be after start date.");
+    }
+    const owner = await this.ownerRepository.findByUserId(data.ownerId);
     if (!owner) throw new Error("Owner profile not found");
 
     const sitter = await this.sitterRepository.findByUserId(data.sitterId);
@@ -64,57 +68,177 @@ export class BookingService {
       throw new Error("Some pets not found or unauthorized");
     }
 
-    // Calculate price
-    const startDate = new Date(data.startDate);
-    const endDate = new Date(data.endDate);
-    const durationHours =
-      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60);
-    const price = new Prisma.Decimal(
-      parseFloat(sitter.rate.toString()) * durationHours
+    return this.bookingRepository.create(data);
+  }
+
+  private async checkBookingPermission(
+    bookingId: string,
+    userId: string,
+    allowedRole: "owner" | "sitter"
+  ): Promise<Booking> {
+    const booking = await this.bookingRepository.findById(bookingId);
+    if (!booking) {
+      throw new Error("Booking not found");
+    }
+
+    if (allowedRole === "owner") {
+      const owner = await this.ownerRepository.findByUserId(userId);
+      if (!owner || booking.ownerId !== owner.id) {
+        throw new Error(
+          "Permission denied: You are not the owner of this booking."
+        );
+      }
+    } else if (allowedRole === "sitter") {
+      const sitter = await this.sitterRepository.findByUserId(userId);
+      if (!sitter || booking.sitterId !== sitter.id) {
+        throw new Error(
+          "Permission denied: You are not the sitter for this booking."
+        );
+      }
+    }
+    return booking;
+  }
+
+  async confirmBookingBySitter(
+    bookingId: string,
+    sitterUserId: string
+  ): Promise<Booking> {
+    const booking = await this.checkBookingPermission(
+      bookingId,
+      sitterUserId,
+      "sitter"
     );
 
-    return this.bookingRepository.create({
-      startDate,
-      endDate,
-      notes: data.notes,
-      status: BookingStatus.PENDING,
-      price,
-      ownerId: owner.id,
-      sitterId: sitter.id,
-      petIds: data.petIds,
+    if (booking.status !== BookingStatus.PENDING) {
+      throw new Error(
+        `Booking cannot be confirmed. Current status: ${booking.status}`
+      );
+    }
+
+    return this.bookingRepository.update(bookingId, {
+      status: BookingStatus.CONFIRMED,
     });
   }
 
-  async updateBooking(
-    id: string,
-    userId: string,
-    data: UpdateBookingDTO
+  async completeBookingBySitter(
+    bookingId: string,
+    sitterUserId: string
   ): Promise<Booking> {
-    const booking = await this.bookingRepository.findById(id);
-    if (!booking) throw new Error("Booking not found");
+    const booking = await this.checkBookingPermission(
+      bookingId,
+      sitterUserId,
+      "sitter"
+    );
 
-    // Verify permissions
-    const owner = await this.ownerRepository.findByUserId(userId);
-    const sitter = await this.sitterRepository.findByUserId(userId);
-    const isOwner = owner && booking.ownerId === owner.id;
-    const isSitter = sitter && booking.sitterId === sitter.id;
-    if (!isOwner && !isSitter) throw new Error("Unauthorized");
-
-    let updateData: Prisma.BookingUpdateInput = {};
-
-    if (isOwner) {
-      updateData = this.handleOwnerUpdates(data, booking);
-    } else if (isSitter) {
-      updateData = this.handleSitterUpdates(data);
+    if (booking.status !== BookingStatus.CONFIRMED) {
+      throw new Error(
+        `Booking cannot be marked complete. Current status: ${booking.status}`
+      );
     }
 
-    // Transform updateData to Prisma-compatible format
-    const prismaUpdateData: Prisma.BookingUpdateInput = {
-      ...updateData,
-      ...(data.status && { status: { set: data.status } }),
-    };
+    return this.bookingRepository.update(bookingId, {
+      status: BookingStatus.COMPLETED,
+    });
+  }
 
-    return this.bookingRepository.update(id, prismaUpdateData);
+  async cancelBookingByOwner(
+    bookingId: string,
+    ownerUserId: string
+  ): Promise<Booking> {
+    const booking = await this.checkBookingPermission(
+      bookingId,
+      ownerUserId,
+      "owner"
+    );
+
+    // Allow cancellation only for PENDING or CONFIRMED (define your rules)
+    if (
+      !(["PENDING", "CONFIRMED"] as BookingStatus[]).includes(booking.status)
+    ) {
+      throw new Error(
+        `Booking cannot be cancelled. Current status: ${booking.status}`
+      );
+    }
+
+    return this.bookingRepository.update(bookingId, {
+      status: BookingStatus.CANCELLED,
+    });
+  }
+
+  async cancelBookingBySitter(
+    bookingId: string,
+    sitterUserId: string
+  ): Promise<Booking> {
+    const booking = await this.checkBookingPermission(
+      bookingId,
+      sitterUserId,
+      "sitter"
+    );
+
+    if (
+      !(["PENDING", "CONFIRMED"] as BookingStatus[]).includes(booking.status)
+    ) {
+      throw new Error(
+        `Booking cannot be cancelled. Current status: ${booking.status}`
+      );
+    }
+
+    return this.bookingRepository.update(bookingId, {
+      status: BookingStatus.CANCELLED,
+    });
+  }
+
+  // async updateBooking(
+  //   id: string,
+  //   userId: string,
+  //   data: UpdateBookingDTO
+  // ): Promise<Booking> {
+  //   const booking = await this.bookingRepository.findById(id);
+  //   if (!booking) throw new Error("Booking not found");
+
+  //   // Verify permissions
+  //   const owner = await this.ownerRepository.findByUserId(userId);
+  //   const sitter = await this.sitterRepository.findByUserId(userId);
+  //   const isOwner = owner && booking.ownerId === owner.id;
+  //   const isSitter = sitter && booking.sitterId === sitter.id;
+  //   if (!isOwner && !isSitter) throw new Error("Unauthorized");
+
+  //   let updateData: Prisma.BookingUpdateInput = {};
+
+  //   if (isOwner) {
+  //     updateData = this.handleOwnerUpdates(data, booking);
+  //   } else if (isSitter) {
+  //     updateData = this.handleSitterUpdates(data);
+  //   }
+
+  //   // Transform updateData to Prisma-compatible format
+  //   const prismaUpdateData: Prisma.BookingUpdateInput = {
+  //     ...updateData,
+  //     ...(data.status && { status: { set: data.status } }),
+  //   };
+
+  //   return this.bookingRepository.update(id, prismaUpdateData);
+  // }
+  async update(
+    bookingId: string,
+    userId: string,
+    userType: "PETOWNER" | "PETSITTER",
+    data: UpdateBookingDTO
+  ): Promise<Booking> {
+    const allowedRole = userType === "PETOWNER" ? "owner" : "sitter";
+    const booking = await this.checkBookingPermission(
+      bookingId,
+      userId,
+      allowedRole
+    );
+
+    if (data.status) {
+      throw new Error(
+        "Use specific methods (confirm, cancel, complete) to update booking status."
+      );
+    }
+
+    return this.bookingRepository.update(bookingId, data);
   }
 
   private handleOwnerUpdates(

@@ -1,95 +1,86 @@
 import { Booking, BookingStatus, Prisma } from "@prisma/client";
 import { injectable, inject } from "tsyringe";
 import { PrismaClientService } from "../lib/prisma/prismaClient";
-import { CreateBookingDTO, UpdateBookingDTO } from "../dtos/BookingDTO";
+import { Decimal } from "@prisma/client/runtime/library";
 
 @injectable()
 export class BookingRepository {
   constructor(
-    @inject(PrismaClientService) private prismaService: PrismaClientService
+    @inject(PrismaClientService) private prisma: PrismaClientService
   ) {}
 
-  async create(data: CreateBookingDTO): Promise<Booking> {
-    return this.prismaService.client.booking.create({
+  async create(data: {
+    ownerId: string;
+    sitterId: string;
+    startDate: Date;
+    endDate: Date;
+    petIds: string[];
+    status: BookingStatus;
+    price: Decimal;
+    notes?: string;
+  }): Promise<Booking> {
+    return this.prisma.client.booking.create({
       data: {
+        owner: { connect: { id: data.ownerId } },
+        sitter: { connect: { id: data.sitterId } },
         startDate: data.startDate,
         endDate: data.endDate,
-        notes: data.notes,
         status: data.status,
         price: data.price,
-        ownerId: data.ownerId,
-        sitterId: data.sitterId,
-        pets: { connect: data.petIds.map((id) => ({ id })) },
-      },
-      include: {
-        pets: true,
-        owner: { include: { user: true } },
-        sitter: { include: { user: true } },
+        notes: data.notes,
+        pets: {
+          connect: data.petIds.map((id) => ({ id })),
+        },
       },
     });
   }
 
   async update(id: string, data: Prisma.BookingUpdateInput): Promise<Booking> {
-    return this.prismaService.client.booking.update({
+    return this.prisma.client.booking.update({
       where: { id },
       data,
-      include: {
-        pets: true,
-        owner: { include: { user: true } },
-        sitter: { include: { user: true } },
-      },
     });
   }
 
-  async findById(id: string): Promise<Booking | null> {
-    return this.prismaService.client.booking.findUnique({
+  async findById(id: string): Promise<any | null> {
+    return this.prisma.client.booking.findUnique({
       where: { id },
       include: {
+        owner: { include: { user: true } },
+        sitter: { include: { user: true } },
         pets: true,
-        owner: {
-          include: {
-            user: true,
-          },
-        },
-        sitter: {
-          include: {
-            user: true,
-          },
-        },
       },
     });
   }
 
   async findByOwnerId(ownerId: string): Promise<Booking[]> {
-    return this.prismaService.client.booking.findMany({
+    return this.prisma.client.booking.findMany({
       where: { ownerId },
       include: {
-        pets: true,
-        sitter: {
-          include: {
-            user: true,
-          },
-        },
+        // Include necessary related data
+        sitter: { include: { user: { select: { name: true, image: true } } } },
+        pets: { select: { id: true, name: true, type: true } },
+        owner: { include: { user: { select: { name: true } } } },
       },
+      orderBy: { startDate: "desc" },
     });
   }
 
-  async findBySitterId(sitterId: string): Promise<Booking[]> {
-    return this.prismaService.client.booking.findMany({
+  async findBySitterId(sitterId: string): Promise<any[]> {
+    return this.prisma.client.booking.findMany({
       where: { sitterId },
       include: {
-        pets: true,
-        owner: {
-          include: {
-            user: true,
-          },
-        },
+        // Include necessary related data
+        owner: { include: { user: { select: { name: true, image: true } } } },
+        pets: { select: { id: true, name: true, type: true } },
+        sitter: { include: { user: { select: { name: true } } } },
       },
+      orderBy: { startDate: "desc" },
     });
   }
 
   async delete(id: string): Promise<void> {
-    await this.prismaService.client.booking.delete({
+    await this.prisma.client.booking.delete({
       where: { id },
     });
   }
