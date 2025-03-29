@@ -9,7 +9,7 @@ export async function GET(
 ) {
   try {
     const session = await getAuthSession();
-    if (!session || !session.user.id) {
+    if (!session || !session.user || !session.user.id) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
@@ -40,7 +40,7 @@ export async function PUT(
 ) {
   try {
     const session = await getAuthSession();
-    if (!session || !session.user.id) {
+    if (!session || !session.user || !session.user.id) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
@@ -81,7 +81,7 @@ export async function DELETE(
 ) {
   try {
     const session = await getAuthSession();
-    if (!session || !session.user.id) {
+    if (!session || !session.user || !session.user.id) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 

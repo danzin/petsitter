@@ -6,9 +6,18 @@ import { PetSitterWithUser } from "../../types/utils";
 export class SitterRepository {
   constructor(@inject("PrismaClient") private prisma: PrismaClient) {}
 
-  async findByUserId(userId: string): Promise<PetSitter | null> {
+  async findByUserId(userId: string): Promise<PetSitterWithUser | null> {
+    console.log(userId);
     return this.prisma.petSitter.findUnique({
-      where: { userId },
+      where: { userId: userId },
+      include: { user: true },
+    });
+  }
+
+  async findById(sitterId: string): Promise<PetSitterWithUser | null> {
+    return this.prisma.petSitter.findUnique({
+      where: { id: sitterId },
+      include: { user: true },
     });
   }
 

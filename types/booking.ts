@@ -1,4 +1,11 @@
-import { BookingStatus } from "@prisma/client";
+import {
+  Booking,
+  BookingStatus,
+  Pet,
+  PetOwner,
+  PetSitter,
+  User,
+} from "@prisma/client";
 
 export interface BookingCreateInput {
   startDate: Date;
@@ -9,4 +16,15 @@ export interface BookingCreateInput {
   totalPrice?: number;
   notes?: string;
   status?: BookingStatus;
+}
+
+export type BookingWithDetails = Booking & {
+  owner: PetOwner & { user: Pick<User, "id" | "name" | "email" | "image"> };
+  sitter: PetSitter & { user: Pick<User, "id" | "name" | "email" | "image"> };
+  pets: Pet[];
+};
+
+export interface BookingDetailsProps {
+  booking: BookingWithDetails;
+  currentUserRole: "owner" | "sitter" | "none";
 }

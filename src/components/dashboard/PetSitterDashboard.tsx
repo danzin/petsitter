@@ -95,49 +95,12 @@ export default function PetSitterDashboard() {
             <CardTitle>Bookings</CardTitle>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="upcoming">
+            <Tabs defaultValue="pending">
               <TabsList className="mb-4">
-                <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
                 <TabsTrigger value="pending">Pending Requests</TabsTrigger>
+                <TabsTrigger value="confirmed">Confirmed</TabsTrigger>
                 <TabsTrigger value="past">Past</TabsTrigger>
               </TabsList>
-              
-              <TabsContent value="upcoming">
-                {bookings.filter((booking: Booking) => 
-                  booking.status === BookingStatus.CONFIRMED
-                ).length > 0 ? (
-                  <div className="space-y-4">
-                    {bookings
-                      .filter((booking: Booking) => booking.status === BookingStatus.CONFIRMED)
-                      .map((booking: any) => (
-                        <Card key={booking.id}>
-                          <CardContent className="pt-4">
-                            <div className="flex justify-between">
-                              <div>
-                                <p className="font-medium">{booking.owner.user.name}</p>
-                                <p className="text-sm text-gray-500">
-                                  {new Date(booking.startDate).toLocaleDateString()} -
-                                  {new Date(booking.endDate).toLocaleDateString()}
-                                </p>
-                                <p className="text-sm mt-1">
-                                  Pets: {booking.pets.map((pet: any) => pet.name).join(", ")}
-                                </p>
-                              </div>
-                              <Button
-                                variant="outline"
-                                onClick={() => router.push(`/bookings/${booking.id}`)}
-                              >
-                                Details
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                  </div>
-                ) : (
-                  <p>No upcoming bookings.</p>
-                )}
-              </TabsContent>
 
               <TabsContent value="pending">
                 {bookings.filter((booking: Booking) => 
@@ -175,6 +138,13 @@ export default function PetSitterDashboard() {
                                 >
                                   Accept
                                 </Button>
+                                <Button
+                                  size="sm"
+                                  className="bg-red-500 hover:bg-red-700"
+                                  onClick={() => handleBookingStatusChange(booking.id, BookingStatus.CANCELLED)}
+                                >
+                                  Cancel
+                                </Button>
                               </div>
                             </div>
                           </CardContent>
@@ -185,6 +155,56 @@ export default function PetSitterDashboard() {
                   <p>No pending requests.</p>
                 )}
               </TabsContent>
+
+              <TabsContent value="confirmed">
+                {bookings.filter((booking: Booking) => 
+                  booking.status === BookingStatus.CONFIRMED
+                ).length > 0 ? (
+                  <div className="space-y-4">
+                    {bookings
+                      .filter((booking: Booking) => booking.status === BookingStatus.CONFIRMED)
+                      .map((booking: any) => (
+                        <Card key={booking.id}>
+                          <CardContent className="pt-4">
+                            <div className="flex justify-between">
+                              <div>
+                                <p className="font-medium">{booking.owner.user.name}</p>
+                                <p className="text-sm text-gray-500">
+                                  {new Date(booking.startDate).toLocaleDateString()} -
+                                  {new Date(booking.endDate).toLocaleDateString()}
+                                </p>
+                                <p className="text-sm mt-1">
+                                  Pets: {booking.pets.map((pet: any) => pet.name).join(", ")}
+                                </p>
+                              </div>
+
+                              <div className="flex gap-2">
+                                <Button
+                                  variant="outline"
+                                  onClick={() => router.push(`/bookings/${booking.id}`)}
+                                >
+                                  Details
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    className="bg-red-500 hover:bg-red-700"
+                                    onClick={() => handleBookingStatusChange(booking.id, BookingStatus.CANCELLED)}
+                                  >
+                                    Cancel
+                                </Button>
+                              </div>
+
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                  </div>
+                ) : (
+                  <p>No upcoming bookings.</p>
+                )}
+              </TabsContent>
+
+             
               
               <TabsContent value="past">
                 {bookings.filter((booking: any) => 

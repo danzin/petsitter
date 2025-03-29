@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const sitterProfile = await sitterService.getSitterProfile(user.id);
+    const sitterProfile = await sitterService.getSitterProfileByUserId(user.id);
 
     if (!sitterProfile) {
       return NextResponse.json(

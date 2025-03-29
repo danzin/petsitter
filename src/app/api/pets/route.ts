@@ -9,7 +9,7 @@ export async function GET() {
   try {
     const session = await getAuthSession();
 
-    if (!session || !session.user.id) {
+    if (!session || !session.user || !session.user.id) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
   try {
     const session = await getAuthSession();
 
-    if (!session || !session.user.id) {
+    if (!session || !session.user || !session.user.id) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
@@ -52,7 +52,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const petOwner = await ownerService.getOwnerProfile(session.user.id);
+    const petOwner = await ownerService.getOwnerProfileByUserId(
+      session.user.id
+    );
 
     if (!petOwner) {
       return NextResponse.json(

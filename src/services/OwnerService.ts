@@ -25,7 +25,7 @@ export class OwnerService {
     @inject("PrismaClient") private prisma: Prisma.TransactionClient
   ) {}
 
-  async getOwnerProfile(userId: string): Promise<PetOwner | null> {
+  async getOwnerProfileByUserId(userId: string): Promise<PetOwner | null> {
     return this.ownerRepository.findByUserId(userId);
   }
 

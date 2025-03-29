@@ -140,14 +140,15 @@ export default function PetsPage() {
   }
 
   return (
-    <div className="space-y-6">
-
-      <Card>
+    <div className="container mx-auto">
+      <div className="flex content-start my-3">
         <Link href='/dashboard'>
           <Button>
             Back to Dashboard
           </Button>
         </Link>
+      </div>      
+      <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle>My Pets</CardTitle>

@@ -8,7 +8,7 @@ import { getCurrentUser } from '@/lib/auth/getCurrentUser';
 
 export default async function Home() {
   const user = await getCurrentUser();
-    console.log(user)
+
   return (
     <main>
       <UserNavbar user ={ user as IUser }/>
@@ -20,19 +20,20 @@ export default async function Home() {
               <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Your pet's home away from home</h1>
               <p className="text-lg text-gray-600 mb-2">Connect with trusted pet sitters in your area</p>
               
-              { !user ? ( <div className='container mx-auto pb-4'>
-                <div className='flex gap-3 justify-baseline'>
-                  <p className='text-md text-gray-600 pt-1'>Already have an account?</p>
-                  <div>
-                  <Link href="/login">
-                    <Button size="sm" variant="outline">Log in</Button>
-                  </Link>
-                  </div>
-                </div>
-              </div> ) : (<></>)
-                
+              {
+               !user ? (
+                  <div className='container mx-auto pb-4'>
+                    <div className='flex gap-3 justify-baseline'>
+                      <p className='text-md text-gray-600 pt-1'>Already have an account?</p>
+                      <div>
+                      <Link href="/login">
+                        <Button size="sm" variant="outline">Log in</Button>
+                      </Link>
+                      </div>
+                    </div>
+                  </div> ) 
+                : (<></>)
               }
-             
               
               <SearchForm/>
             </div>

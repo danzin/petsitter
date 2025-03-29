@@ -1,35 +1,59 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuthSession } from "@/lib/auth/authContext";
 import { container } from "@/lib/container";
-import { BookingRepository } from "@/repositories/BookingRepository";
+import { BookingService } from "@/services/BookingService";
+import { getAuthSession } from "@/lib/auth/authContext";
+import { BookingStatus } from "@prisma/client";
 
-const bookingRepository = container.resolve(
-  "BookingRepository"
-) as BookingRepository;
+const bookingService = container.resolve(BookingService);
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
     const session = await getAuthSession();
-    if (!session || !session.user.id) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { message: "Unauthorized: Not logged in" },
+        { status: 401 }
+      );
     }
 
-    // Fetch bookings associated with the sitter
-    const sitterBookings = await bookingRepository.findBySitterId(
+    if (session.user.userType !== "PETSITTER") {
+      console.warn(
+        `User ${session.user.id} attempted to access sitter bookings but is type ${session.user.userType}`
+      );
+      return NextResponse.json(
+        { message: "Forbidden: Only Pet Sitters can access this endpoint" },
+        { status: 403 }
+      );
+    }
+
+    console.log(`Fetching bookings for sitter with userID: ${session.user.id}`);
+
+    const bookings = await bookingService.getBookingsBySitterUserId(
       session.user.id
     );
 
-    // If no bookings found
-    if (!sitterBookings || sitterBookings.length === 0) {
-      return NextResponse.json({ bookings: [] }, { status: 200 });
-    }
+    // const sanitizedBookings = bookings.map((booking) => ({
+    //   ...booking,
+    //   price: booking.price.toString(),
+    //   // Sanitize related sitter rate if included in the query result
+    //   sitter: booking.sitter
+    //     ? {
+    //         ...booking.sitter,
+    //         rate: booking.sitter.rate?.toString(),
+    //       }
+    //     : undefined,
+    // }));
 
-    // Return sitter's bookings
-    return NextResponse.json({ bookings: sitterBookings }, { status: 200 });
+    console.log(
+      `Found ${bookings.length} bookings for sitter (user ID): ${session.user.id}`
+    );
+
+    return NextResponse.json({ bookings: bookings });
   } catch (error) {
-    console.error("Error fetching bookings for sitter:", error);
+    console.error("Error fetching sitter bookings:", error);
     return NextResponse.json(
-      { message: "Something went wrong" },
+      { message: "Something went wrong while fetching sitter bookings" },
       { status: 500 }
     );
   }
