@@ -5,9 +5,17 @@ import { PrismaClient, PetOwner, Prisma } from "@prisma/client";
 export class OwnerRepository {
   constructor(@inject("PrismaClient") private prisma: PrismaClient) {}
 
+  //find by userId
   async findByUserId(userId: string): Promise<PetOwner | null> {
     return this.prisma.petOwner.findUnique({
-      where: { userId },
+      where: { userId: userId },
+    });
+  }
+
+  //find by ownerId
+  async findById(id: string): Promise<PetOwner | null> {
+    return this.prisma.petOwner.findUnique({
+      where: { id },
     });
   }
 

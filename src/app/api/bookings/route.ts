@@ -63,9 +63,12 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    console.log(`userId in bookings POST handler: ${session.user.id}`);
     const petOwner = await ownerService.getOwnerProfileByUserId(
       session.user.id
     );
+    console.log(`petOwner: ${petOwner?.id}`);
     if (!petOwner) {
       console.error(
         `PetOwner profile not found for user ID: ${session.user.id}`
@@ -78,6 +81,9 @@ export async function POST(req: NextRequest) {
     const ownerId = petOwner.id;
 
     const sitter = await sitterService.getSitterById(sitterId);
+    console.log(
+      `sitterId in bookings POST handler: ${sitterId} \r\n sitter: ${sitter?.id}`
+    );
     if (!sitter || !sitter.rate) {
       return NextResponse.json(
         { message: "Sitter not found or rate not set." },
@@ -108,6 +114,7 @@ export async function POST(req: NextRequest) {
         { status: 201 }
       );
     } catch (error: any) {
+      console.log(`Error in post route handler: ${error}`);
       return NextResponse.json({ message: error.message }, { status: 400 });
     }
   } catch (error) {

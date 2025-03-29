@@ -54,10 +54,10 @@ export class BookingService {
     if (data.endDate <= data.startDate) {
       throw new Error("End date must be after start date.");
     }
-    const owner = await this.ownerRepository.findByUserId(data.ownerId);
+    const owner = await this.ownerRepository.findById(data.ownerId);
     if (!owner) throw new Error("Owner profile not found");
 
-    const sitter = await this.sitterRepository.findByUserId(data.sitterId);
+    const sitter = await this.sitterRepository.findById(data.sitterId);
     if (!sitter) throw new Error("Pet sitter not found");
 
     // Verify pet ownership
