@@ -75,7 +75,6 @@ export function BookingForm() {
 
         console.log("Pet Fetch: Attempting fetch for user:", session.user.id);
         setIsPetsLoading(true);
-        // setError(null); // Be careful not to clear errors from sitter fetch
 
         try {
             const response = await axios.get('/api/pets');
