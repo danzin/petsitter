@@ -36,7 +36,7 @@ export async function PATCH(
 ) {
   try {
     const session = await getAuthSession();
-    const { bookingId } = params;
+    const { bookingId } = await params;
 
     if (!session?.user?.id) {
       return NextResponse.json(

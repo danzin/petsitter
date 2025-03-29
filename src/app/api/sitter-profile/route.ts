@@ -13,7 +13,7 @@ const sitterRepository = container.resolve(
 export async function GET(req: Request) {
   try {
     const session = await getAuthSession();
-    if (!session || !session.user.id) {
+    if (!session || !session.user || !session.user.id) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
@@ -24,7 +24,6 @@ export async function GET(req: Request) {
         { status: 404 }
       );
     }
-    console.log(`------SITTER PROFILE-------: ${sitterProfile.rate} `);
     return NextResponse.json({ profile: sitterProfile }, { status: 200 });
   } catch (error) {
     console.error("Error getting sitter profile:", error);
@@ -39,7 +38,7 @@ export async function POST(req: Request) {
   try {
     const session = await getAuthSession();
     console.log("Session:", session);
-    if (!session || !session.user.id) {
+    if (!session || !session.user || !session.user.id) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 

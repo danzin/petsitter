@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 
 export default function PetOwnerDashboard() {
-  const [bookings, setBookings] = useState([]);
+  const [bookings, setBookings] = useState<any[]>([]);
   const [pets, setPets] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
@@ -37,6 +37,18 @@ export default function PetOwnerDashboard() {
   if (isLoading) {
     return <div><Loader2/></div>;
   }
+
+  const handleBookingStatusChange = async (bookingId: string, status: BookingStatus) => {
+    try {
+      await axios.patch(`/api/bookings/${bookingId}`, { status });
+      setBookings(prev => prev.map(booking => 
+        booking.id === bookingId ? { ...booking, status } : booking
+      ));
+
+    } catch (error) {
+      console.error("Error updating booking status:", error);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -117,12 +129,22 @@ export default function PetOwnerDashboard() {
                                   Status: <span className="font-medium">{booking.status}</span>
                                 </p>
                               </div>
+                              <div className="flex gap-2">
                               <Button 
                                 variant="outline"
                                 onClick={() => router.push(`/bookings/${booking.id}`)}
                               >
                                 Details
                               </Button>
+                              <Button
+                                  size="sm"
+                                  className="bg-red-500 hover:bg-red-700"
+                                  onClick={() => handleBookingStatusChange(booking.id, BookingStatus.CANCELLED)}
+                                >
+                                  Cancel
+                                </Button>
+
+                              </div>
                             </div>
                           </CardContent>
                         </Card>

@@ -138,6 +138,13 @@ export default function PetSitterDashboard() {
                                 >
                                   Accept
                                 </Button>
+                                <Button
+                                  size="sm"
+                                  className="bg-red-500 hover:bg-red-700"
+                                  onClick={() => handleBookingStatusChange(booking.id, BookingStatus.CANCELLED)}
+                                >
+                                  Cancel
+                                </Button>
                               </div>
                             </div>
                           </CardContent>
@@ -170,12 +177,23 @@ export default function PetSitterDashboard() {
                                   Pets: {booking.pets.map((pet: any) => pet.name).join(", ")}
                                 </p>
                               </div>
-                              <Button
-                                variant="outline"
-                                onClick={() => router.push(`/bookings/${booking.id}`)}
-                              >
-                                Details
-                              </Button>
+
+                              <div className="flex gap-2">
+                                <Button
+                                  variant="outline"
+                                  onClick={() => router.push(`/bookings/${booking.id}`)}
+                                >
+                                  Details
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    className="bg-red-500 hover:bg-red-700"
+                                    onClick={() => handleBookingStatusChange(booking.id, BookingStatus.CANCELLED)}
+                                  >
+                                    Cancel
+                                </Button>
+                              </div>
+
                             </div>
                           </CardContent>
                         </Card>
