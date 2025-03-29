@@ -40,6 +40,10 @@ export class BookingService {
     return this.bookingRepository.findBySitterId(sitterId);
   }
 
+  async findBySitterUserId(userId: string): Promise<Booking[]> {
+    return this.bookingRepository.findBySitterUserId(userId);
+  }
+
   async getSitterBookings(userId: string): Promise<Booking[]> {
     const sitter = await this.sitterRepository.findByUserId(userId);
 

@@ -46,8 +46,20 @@ export class BookingRepository {
     return this.prisma.client.booking.findUnique({
       where: { id },
       include: {
-        owner: { include: { user: true } },
-        sitter: { include: { user: true } },
+        owner: {
+          include: {
+            user: {
+              select: { id: true, name: true, email: true, image: true },
+            },
+          },
+        },
+        sitter: {
+          include: {
+            user: {
+              select: { id: true, name: true, email: true, image: true },
+            },
+          },
+        },
         pets: true,
       },
     });
@@ -75,6 +87,22 @@ export class BookingRepository {
         pets: { select: { id: true, name: true, type: true } },
         sitter: { include: { user: { select: { name: true } } } },
       },
+      orderBy: { startDate: "desc" },
+    });
+  }
+
+  async findBySitterUserId(userId: string): Promise<any[]> {
+    return this.prisma.client.booking.findMany({
+      where: {
+        sitter: {
+          userId: userId,
+        },
+      },
+      include: {
+        owner: { include: { user: { select: { name: true, image: true } } } },
+        pets: { select: { id: true, name: true, type: true } },
+      },
+      //Sort by date
       orderBy: { startDate: "desc" },
     });
   }
