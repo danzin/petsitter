@@ -16,10 +16,10 @@ The project is under development. Currently, users can:
  - Seamlessly switch between pet sitters and pet owners through the user dashboard.
  - Search Functionality: Effortlessly find the perfect sitter based on your preferences.
  - Add and edit pets
+ - Booking System: Schedule and manage pet sitting appointments.
 
 What's on the horizon: 
 
- - Booking System: Schedule and manage pet sitting appointments.
  - Review system: Leave a review after an appointment. 
 
 
