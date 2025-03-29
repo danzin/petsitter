@@ -6,6 +6,8 @@ import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import { notFound, redirect } from "next/navigation";
 import { BookingDetails } from "@/components/bookings/BookingDetails";
 import { BookingWithDetails } from '../../../../types/booking';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 async function getBookingData(bookingId: string): Promise<{ booking: BookingWithDetails, currentUserRole: 'owner' | 'sitter' | 'none' }> {
     const bookingService = container.resolve(BookingService);
@@ -50,6 +52,11 @@ export default async function BookingDetailsPage({ params }: { params: { booking
 
     return (
         <div className="container mx-auto py-8">
+            <div className='flex content-start'>
+                <Link href="/dashboard">
+                    <Button variant="default">Back to Dashboard</Button>
+                </Link>
+            </div>
              {/* TODO: Heading or breadcrumbs */}
             <BookingDetails booking={booking} currentUserRole={currentUserRole} />
         </div>

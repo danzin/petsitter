@@ -19,7 +19,9 @@ export async function GET() {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const bookings = await bookingService.findByOwnerId(session.user.id);
+    const bookings = await bookingService.getBookingsByOwnerUserId(
+      session.user.id
+    );
 
     return NextResponse.json({ bookings });
   } catch (error) {
@@ -119,113 +121,6 @@ export async function POST(req: NextRequest) {
     }
   } catch (error) {
     console.error("Booking creation error:", error);
-    return NextResponse.json(
-      { message: "Something went wrong" },
-      { status: 500 }
-    );
-  }
-}
-
-// export async function PUT(
-//   req: NextRequest,
-//   { params }: { params: { id: string } }
-// ) {
-//   try {
-//     const session = await getAuthSession();
-
-//     const { startDate, endDate, notes, status } = await req.json();
-//     if (!session || !session.user || !session.user.id) {
-//       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-//     }
-
-//     try {
-//       const booking = await bookingService.update(
-//         params.id,
-//         session?.user.id,
-//         {
-//           startDate: startDate ? new Date(startDate) : undefined,
-//           endDate: endDate ? new Date(endDate) : undefined,
-//           notes,
-//           status,
-//         }
-//       );
-
-//       return NextResponse.json(
-//         { message: "Booking updated successfully", booking },
-//         { status: 200 }
-//       );
-//     } catch (error: any) {
-//       if (error.message === "Booking not found") {
-//         return NextResponse.json({ message: error.message }, { status: 404 });
-//       }
-//       return NextResponse.json({ message: error.message }, { status: 400 });
-//     }
-//   } catch (error) {
-//     console.error("Booking update error:", error);
-//     return NextResponse.json(
-//       { message: "Something went wrong" },
-//       { status: 500 }
-//     );
-//   }
-// }
-
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const session = await getAuthSession();
-    const { status }: { status: BookingStatus } = await req.json();
-    if (!session || !session.user || !session.user.id) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
-    if (status === "CANCELLED") {
-      await bookingService.cancelBooking(params.id, session.user.id);
-      return NextResponse.json(
-        { message: "Booking cancelled successfully" },
-        { status: 200 }
-      );
-    } else {
-      await bookingService.completeBooking(params.id, session.user.id);
-      return NextResponse.json(
-        { message: "Booking confirmed successfully" },
-        { status: 200 }
-      );
-    }
-  } catch (error) {
-    console.error("Booking update error:", error);
-    return NextResponse.json(
-      { message: "Something went wrong" },
-      { status: 500 }
-    );
-  }
-}
-
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const session = await getAuthSession();
-    if (!session || !session.user || !session.user.id) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
-    try {
-      await bookingService.cancelBooking(params.id, session.user.id);
-      return NextResponse.json(
-        { message: "Booking cancelled successfully" },
-        { status: 200 }
-      );
-    } catch (error: any) {
-      if (error.message === "Booking not found") {
-        return NextResponse.json({ message: error.message }, { status: 404 });
-      }
-      return NextResponse.json({ message: error.message }, { status: 400 });
-    }
-  } catch (error) {
-    console.error("Booking cancellation error:", error);
     return NextResponse.json(
       { message: "Something went wrong" },
       { status: 500 }

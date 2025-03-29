@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { container } from "@/lib/container";
 import { BookingService } from "@/services/BookingService";
 import { getAuthSession } from "@/lib/auth/authContext";
-import { BookingStatus } from "@prisma/client"; // Import BookingStatus if needed for filtering later
+import { BookingStatus } from "@prisma/client";
 
 const bookingService = container.resolve(BookingService);
 
@@ -29,7 +29,9 @@ export async function GET(req: NextRequest) {
 
     console.log(`Fetching bookings for sitter with userID: ${session.user.id}`);
 
-    const bookings = await bookingService.findBySitterUserId(session.user.id);
+    const bookings = await bookingService.getBookingsBySitterUserId(
+      session.user.id
+    );
 
     // const sanitizedBookings = bookings.map((booking) => ({
     //   ...booking,
