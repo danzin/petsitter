@@ -1,6 +1,6 @@
 import { PetSitter, UserType } from "@prisma/client";
 
-type Availability = {
+export type Availability = {
   weekly?: string[];
   scheduleType?: "fixed" | "flexible" | "weekly" | "dates";
   selectedDates?: string[];

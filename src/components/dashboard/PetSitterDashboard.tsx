@@ -53,10 +53,25 @@ export default function PetSitterDashboard() {
       </div>
     );
   }
-
+  const upcomingBookings = bookings.filter((booking: any) =>
+    [BookingStatus.PENDING, BookingStatus.CONFIRMED].includes(booking.status)
+  );
+  const pastBookings = bookings.filter((booking: any) =>
+    [BookingStatus.COMPLETED, BookingStatus.CANCELLED].includes(booking.status)
+  );
+  const pendingBookings = bookings.filter((booking: Booking) => 
+    booking.status === BookingStatus.PENDING);
+  const confirmedBookings = bookings.filter((booking: Booking) => 
+    booking.status === BookingStatus.CONFIRMED
+  );
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1
+                      md:grid-cols-3
+                      gap-6
+                      items-start" 
+      > {/* 'items-start' keeps the grid items to the top of the grid cell, preventing them from stretching
+            and  allowing their height to be determined by their own content */}
         <Card>
           <CardHeader>
             <CardTitle>My Profile</CardTitle>
@@ -103,13 +118,9 @@ export default function PetSitterDashboard() {
               </TabsList>
 
               <TabsContent value="pending">
-                {bookings.filter((booking: Booking) => 
-                  booking.status === BookingStatus.PENDING
-                ).length > 0 ? (
-                  <div className="space-y-4">
-                    {bookings
-                      .filter((booking: Booking) => booking.status === BookingStatus.PENDING)
-                      .map((booking: any) => (
+                {pendingBookings.length > 0 ? (
+                  <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+                    {pendingBookings.map((booking: any) => (
                         <Card key={booking.id}>
                           <CardContent className="pt-4">
                             <div className="flex justify-between">
@@ -157,13 +168,9 @@ export default function PetSitterDashboard() {
               </TabsContent>
 
               <TabsContent value="confirmed">
-                {bookings.filter((booking: Booking) => 
-                  booking.status === BookingStatus.CONFIRMED
-                ).length > 0 ? (
-                  <div className="space-y-4">
-                    {bookings
-                      .filter((booking: Booking) => booking.status === BookingStatus.CONFIRMED)
-                      .map((booking: any) => (
+                {confirmedBookings.length > 0 ? (
+                  <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+                    {confirmedBookings.map((booking: any) => (
                         <Card key={booking.id}>
                           <CardContent className="pt-4">
                             <div className="flex justify-between">
@@ -207,15 +214,9 @@ export default function PetSitterDashboard() {
              
               
               <TabsContent value="past">
-                {bookings.filter((booking: any) => 
-                  [BookingStatus.COMPLETED, BookingStatus.CANCELLED].includes(booking.status)
-                ).length > 0 ? (
-                  <div className="space-y-4">
-                    {bookings
-                      .filter((booking: any) => 
-                        [BookingStatus.COMPLETED, BookingStatus.CANCELLED].includes(booking.status)
-                      )
-                      .map((booking: any) => (
+                {pastBookings.length > 0 ? (
+                  <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+                    {pastBookings.map((booking: any) => (
                         <Card key={booking.id}>
                           <CardContent className="pt-4">
                             <div className="flex justify-between">

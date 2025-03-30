@@ -85,7 +85,7 @@ export default function SearchPage() {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    // Scroll to top of results safely with TypeScript
+    // Scroll to top of results 
     const resultsElement = document.querySelector('.search-results');
     if (resultsElement) {
       const yOffset = resultsElement.getBoundingClientRect().top + window.pageYOffset - 100;

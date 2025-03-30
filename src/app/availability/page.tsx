@@ -129,11 +129,11 @@ export default function AvailabilityPage() {
   const handleSaveAvailability = async () => {
     setSaving(true);
     try {
-      // Format all dates for the API
+      // Format dates for the API
       const formattedSelectedDates = selectedDates.map(date => date.toISOString());
       const formattedBlockedDates = blockedDates.map(date => date.toISOString());
       
-      // Prepare data
+
       const availabilityData = {
         weekly: weeklyAvailability,
         selectedDates: formattedSelectedDates,

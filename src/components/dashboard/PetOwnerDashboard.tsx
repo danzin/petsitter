@@ -50,9 +50,20 @@ export default function PetOwnerDashboard() {
     }
   };
 
+ const upcomingBookings = bookings.filter((booking: any) =>
+  [BookingStatus.PENDING, BookingStatus.CONFIRMED].includes(booking.status)
+);
+const pastBookings = bookings.filter((booking: any) =>
+  [BookingStatus.COMPLETED, BookingStatus.CANCELLED].includes(booking.status)
+);
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1
+                      md:grid-cols-3
+                      gap-6
+                      items-start" 
+      > {/* 'items-start' keeps the grid items to the top of the grid cell, preventing them from stretching
+            and  allowing their height to be determined by their own content */}
         <Card>
           <CardHeader>
             <CardTitle>
@@ -107,14 +118,9 @@ export default function PetOwnerDashboard() {
               </TabsList>
               
               <TabsContent value="upcoming">
-                {bookings.filter((booking: any) => 
-                  [BookingStatus.PENDING, BookingStatus.CONFIRMED].includes(booking.status)
-                ).length > 0 ? (
-                  <div className="space-y-4">
-                    {bookings
-                      .filter((booking: any) => 
-                        [BookingStatus.PENDING, BookingStatus.CONFIRMED].includes(booking.status)
-                      )
+                {upcomingBookings.length > 0 ? (
+                  <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+                  {upcomingBookings
                       .map((booking: any) => (
                         <Card key={booking.id}>
                           <CardContent className="pt-4">
@@ -162,14 +168,9 @@ export default function PetOwnerDashboard() {
               </TabsContent>
               
               <TabsContent value="past">
-                {bookings.filter((booking: any) => 
-                  [BookingStatus.COMPLETED, BookingStatus.CANCELLED].includes(booking.status)
-                ).length > 0 ? (
-                  <div className="space-y-4">
-                    {bookings
-                      .filter((booking: any) => 
-                        [BookingStatus.COMPLETED, BookingStatus.CANCELLED].includes(booking.status)
-                      )
+                {pastBookings.length > 0 ? (
+                  <div className="space-y-4 max-h-140 overflow-y-auto pr-3">
+                    {pastBookings
                       .map((booking: any) => (
                         <Card key={booking.id}>
                           <CardContent className="pt-4">
