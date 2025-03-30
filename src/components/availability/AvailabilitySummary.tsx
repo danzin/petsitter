@@ -1,6 +1,7 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Availability } from "../../../types/utils";
 interface AvailabilitySummaryProps {
   availability: Availability | null;
 }

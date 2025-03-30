@@ -322,7 +322,7 @@ export function BookingForm() {
         />
       </div>
 
-       {/* --- Price Display (Estimate) --- */}
+       {/* --- Price Display --- */}
        {calculatedPrice !== null && sitterRate && (
             <div className="bg-gray-50 p-3 rounded-md text-center">
                 <p className="text-lg font-semibold">Estimated Price: ${calculatedPrice}</p>
