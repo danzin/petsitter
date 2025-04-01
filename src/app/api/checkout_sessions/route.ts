@@ -92,8 +92,8 @@ export async function POST(req: NextRequest) {
       },
 
       // Redirect urls after payment attempt
-      success_url: `${siteUrl}/booking-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${siteUrl}/bookings/${booking.id}?payment_cancelled=true`,
+      success_url: `${siteUrl}/bookings/${bookingId}?payment_status=success`,
+      cancel_url: `${siteUrl}/bookings/${bookingId}?payment_status=canceled`,
     });
     return NextResponse.json({ sessionId: checkoutSession.id });
   } catch (error: any) {
