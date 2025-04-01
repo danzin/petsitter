@@ -2,6 +2,7 @@ import { Booking, BookingStatus, Prisma } from "@prisma/client";
 import { injectable, inject } from "tsyringe";
 import { PrismaClientService } from "../lib/prisma/prismaClient";
 import { Decimal } from "@prisma/client/runtime/library";
+import { BookingWithDetails } from "../../types/booking";
 
 @injectable()
 export class BookingRepository {
@@ -42,7 +43,7 @@ export class BookingRepository {
     });
   }
 
-  async findById(id: string): Promise<any | null> {
+  async findById(id: string): Promise<BookingWithDetails | null> {
     return this.prisma.client.booking.findUnique({
       where: { id },
       include: {

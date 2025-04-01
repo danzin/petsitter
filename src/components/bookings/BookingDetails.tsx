@@ -1,4 +1,4 @@
-import { Booking } from "@prisma/client";
+import { Booking, BookingStatus } from "@prisma/client";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -6,13 +6,22 @@ import { Separator } from "@/components/ui/separator";
 import { format } from 'date-fns'; 
 import { Clock, CalendarDays, User as UserIcon, Dog, Cat, PawPrint, Mail, StickyNote, CircleDollarSign, Star } from "lucide-react";
 import { BookingDetailsProps } from "../../../types/booking";
+import { Button } from "../ui/button";
+import axios from "axios";
 
 
 const getInitials = (name?: string | null) => {
     if (!name) return "?";
     return name.split(' ').map(part => part[0]).join('').toUpperCase();
 };
+const handleBookingStatusChange = async (bookingId: string, status: BookingStatus) => {
+    try {
+      await axios.patch(`/api/bookings/${bookingId}`, { status });
 
+    } catch (error) {
+      console.error("Error updating booking status:", error);
+    }
+  };
 const getStatusVariant = (status: Booking['status']): "default" | "secondary" | "destructive" | "outline" => {
     switch (status) {
         case 'CONFIRMED': return "default"; 
@@ -24,6 +33,19 @@ const getStatusVariant = (status: Booking['status']): "default" | "secondary" | 
 };
 
 export function BookingDetails({ booking, currentUserRole }: BookingDetailsProps) {
+
+    if(!booking){
+        console.error("Booking data is not available.");
+        return (
+        <div className="space-y-2 pt-4 border-t">
+            <h3 className="text-lg font-semibold mb-2">Payment</h3>
+            <p className="text-sm mb-3 text-red-700">Booking data not available</p>
+        </div>
+        )
+    }
+    console.log("Booking object passed to PaymentButton:", booking);
+    console.log("Booking Status:", booking?.status);
+    console.log("Payment Status:", booking?.paymentStatus);
 
     const formattedStartDate = format(new Date(booking.startDate), "eee, MMM d, yyyy 'at' h:mm a");
     const formattedEndDate = format(new Date(booking.endDate), "eee, MMM d, yyyy 'at' h:mm a");
@@ -123,7 +145,7 @@ export function BookingDetails({ booking, currentUserRole }: BookingDetailsProps
                          <div>
                              <h3 className="text-lg font-semibold mb-2 flex items-center"><CircleDollarSign className="mr-2 h-5 w-5 text-primary" /> Booking Price</h3>
                              <p className="text-xl font-bold">
-                                 ${booking.price.toFixed(2)} 
+                                 ${Number(booking.price).toFixed(2)} 
                              </p>
                          </div>
 
@@ -137,8 +159,8 @@ export function BookingDetails({ booking, currentUserRole }: BookingDetailsProps
 
             </CardContent>
             <CardFooter className="flex justify-end space-x-2">
-                 {/* {currentUserRole === 'owner' && booking.status === 'PENDING' && <Button variant="destructive">Cancel Request</Button>} */}
-                 {/* {currentUserRole === 'sitter' && booking.status === 'PENDING' && <Button>Accept Request</Button>} */}
+                 { booking.status === 'PENDING' && <Button variant="destructive" onClick={() => handleBookingStatusChange(booking.id, BookingStatus.CANCELLED)}>Cancel Request</Button>}
+                 { booking.status === 'PENDING' && <Button onClick={() => handleBookingStatusChange(booking?.id, BookingStatus.CONFIRMED)}>Accept Request</Button>}
             </CardFooter>
         </Card>
     );

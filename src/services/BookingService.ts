@@ -6,6 +6,7 @@ import { SitterRepository } from "@/repositories/SitterRepository";
 import { PrismaClientService } from "@/lib/prisma/prismaClient";
 import { Booking, BookingStatus, Prisma, User } from "@prisma/client";
 import { CreateBookingDTO, UpdateBookingDTO } from "@/dtos/BookingDTO";
+import { BookingWithDetails } from "../../types/booking";
 
 @injectable()
 export class BookingService {
@@ -20,7 +21,7 @@ export class BookingService {
    * Finds specific booking by ID, including related owner, sitter, and pet data.
    * Performs no authorization check itself - relies on caller (API route) for that.
    */
-  async getBookingById(id: string): Promise<Booking | null> {
+  async getBookingById(id: string): Promise<BookingWithDetails | null> {
     return this.bookingRepository.findById(id);
   }
 

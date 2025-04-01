@@ -115,17 +115,29 @@ model Booking {
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
-  owner   PetOwner  @relation("OwnerBookings", fields: [ownerId], references: [id])
-  sitter  PetSitter @relation("SitterBookings", fields: [sitterId], references: [id])
-  pets    Pet[]     @relation("PetBookings")
-  reviews Review[]
+  paymentStatus           PaymentStatus @default(UNPAID)
+  stripeCheckoutSessionId String?       @unique
+  stripePaymentIntentId   String?       @unique
+  owner                   PetOwner      @relation("OwnerBookings", fields: [ownerId], references: [id])
+  sitter                  PetSitter     @relation("SitterBookings", fields: [sitterId], references: [id])
+  pets                    Pet[]         @relation("PetBookings")
+  reviews                 Review[]
 }
 
 enum BookingStatus {
   PENDING
   CONFIRMED
+  PAID
   COMPLETED
   CANCELLED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
 }
 
 model Review {
