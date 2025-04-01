@@ -55,15 +55,15 @@ export function PaymentButton({ booking }: PaymentButtonProps) {
 
 
     return (
-        <div className="space-y-2 pt-4 border-t">
-             <h3 className="text-lg font-semibold mb-2">Payment</h3>
-             <p className="text-sm text-muted-foreground mb-3">Complete your booking by proceeding to payment.</p>
-            <Button onClick={handlePayment} disabled={isLoading || booking.status == BookingStatus.PENDING} className="w-full sm:w-auto">
-                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CreditCard className="mr-2 h-4 w-4" />}
-                {isLoading ? 'Processing...' : 'Proceed to Payment'}
-                {booking.status == BookingStatus.PENDING && '(Pending Sitter Confirmation)'}
-            </Button>
-            {error && <p className="text-sm text-destructive mt-2">{error}</p>}
-        </div>
+      <div className="space-y-2 pt-4 border-t">
+        <h3 className="text-lg font-semibold mb-2">Payment</h3>
+        <p className="text-sm text-muted-foreground mb-3">Complete your booking by proceeding to payment.</p>
+        <Button onClick={handlePayment} disabled={isLoading || booking.status == BookingStatus.PENDING} className="w-full sm:w-auto">
+          {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CreditCard className="mr-2 h-4 w-4" />}
+          {isLoading ? 'Processing...' : 'Proceed to Payment'}
+          {booking.status == BookingStatus.PENDING && '(Pending Sitter Confirmation)'}
+        </Button>
+        {error && <p className="text-sm text-destructive mt-2">{error}</p>}
+      </div>
     );
 }
