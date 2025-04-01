@@ -1,4 +1,4 @@
-import { Booking, BookingStatus } from "@prisma/client";
+import { Booking, BookingStatus, UserType } from "@prisma/client";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -160,7 +160,7 @@ export function BookingDetails({ booking, currentUserRole }: BookingDetailsProps
             </CardContent>
             <CardFooter className="flex justify-end space-x-2">
                  { booking.status === 'PENDING' && <Button variant="destructive" onClick={() => handleBookingStatusChange(booking.id, BookingStatus.CANCELLED)}>Cancel Request</Button>}
-                 { booking.status === 'PENDING' && <Button onClick={() => handleBookingStatusChange(booking?.id, BookingStatus.CONFIRMED)}>Accept Request</Button>}
+                 { currentUserRole === "sitter" && booking.status === 'PENDING' && <Button onClick={() => handleBookingStatusChange(booking?.id, BookingStatus.CONFIRMED)}>Accept Request</Button>}
             </CardFooter>
         </Card>
     );

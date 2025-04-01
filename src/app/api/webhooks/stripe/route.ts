@@ -6,8 +6,10 @@ import { container } from "@/lib/container";
 import { BookingService } from "@/services/BookingService";
 import { PrismaClientService } from "@/lib/prisma/prismaClient";
 import { BookingStatus, PaymentStatus } from "@prisma/client";
+import { PaymentIntent } from "@stripe/stripe-js";
 
 const prisma = container.resolve(PrismaClientService).client;
+const bookingService = container.resolve(BookingService);
 
 export const config = {
   api: {
@@ -50,7 +52,7 @@ export async function POST(req: NextRequest) {
 
   const session = event.data.object as Stripe.Checkout.Session;
   const eventType = event.type;
-
+  console.log(`Webhook payload:`, JSON.stringify(event, null, 2));
   console.log(
     `Received Stripe webhook event: ${eventType}, Session ID: ${session.id}`
   );
@@ -77,23 +79,20 @@ export async function POST(req: NextRequest) {
       if (session.payment_status === "paid") {
         console.log(`Payment successful for Booking ID: ${bookingId}`);
 
-        //Using PrismaClientService for now
-        const updatedBooking = await prisma.booking.update({
-          where: { id: bookingId },
-          data: {
-            paymentStatus: PaymentStatus.PAID,
-            status: BookingStatus.PAID,
-            stripeCheckoutSessionId: session.id,
-            stripePaymentIntentId:
-              typeof session.payment_intent === "string"
-                ? session.payment_intent
-                : null,
-          },
-        });
-        console.log(
-          `Database updated for Booking ID: ${bookingId}`,
-          updatedBooking
-        );
+        try {
+          const updatedBooking = await bookingService.updatePaymentSuccess(
+            bookingId,
+            session.id,
+            session.payment_intent as string
+          );
+          console.log("Booking updated successfully:", updatedBooking);
+        } catch (error: any) {
+          console.error("Error updating booking:", error);
+          return NextResponse.json(
+            { message: `Error updating booking: ${error.message}` },
+            { status: 500 }
+          );
+        }
 
         // TODO: Add any post payment logic like sending emails
       } else {

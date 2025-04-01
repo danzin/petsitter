@@ -4,7 +4,13 @@ import { OwnerRepository } from "@/repositories/OwnerRepository";
 import { SitterRepository } from "@/repositories/SitterRepository";
 
 import { PrismaClientService } from "@/lib/prisma/prismaClient";
-import { Booking, BookingStatus, Prisma, User } from "@prisma/client";
+import {
+  Booking,
+  BookingStatus,
+  PaymentStatus,
+  Prisma,
+  User,
+} from "@prisma/client";
 import { CreateBookingDTO, UpdateBookingDTO } from "@/dtos/BookingDTO";
 import { BookingWithDetails } from "../../types/booking";
 
@@ -257,5 +263,46 @@ export class BookingService {
     }
 
     return this.bookingRepository.update(bookingId, updatePayload);
+  }
+
+  /**
+   * Updates a booking's status and payment details upon successful
+   * payment confirmation from Stripe webhook.
+   * Ensures idempotency by checking if already paid.
+   *
+   * @param bookingId The ID of the booking to update.
+   * @param stripeCheckoutSessionId The Stripe session ID.
+   * @param stripePaymentIntentId The Stripe payment intent ID (if available).
+   * @returns The updated Booking object.
+   */
+  async updatePaymentSuccess(
+    bookingId: string,
+    stripeCheckoutSessionId: string,
+    stripePaymentIntentId: string | null
+  ): Promise<Booking> {
+    console.log(
+      `Service: Handling payment success for Booking ID: ${bookingId}`
+    );
+
+    const existingBooking = await this.bookingRepository.findById(bookingId);
+    if (!existingBooking) {
+      throw new Error(
+        `Webhook Error: Booking ${bookingId} not found when attempting to update payment status.`
+      );
+    }
+
+    if (existingBooking.paymentStatus === PaymentStatus.PAID) {
+      console.warn(
+        `Webhook Warning: Booking ${bookingId} is already marked as PAID. Skipping update.`
+      );
+      return existingBooking;
+    }
+
+    return this.bookingRepository.updatePaymentSuccessDetails(bookingId, {
+      paymentStatus: PaymentStatus.PAID,
+      status: BookingStatus.PAID,
+      stripeCheckoutSessionId: stripeCheckoutSessionId,
+      stripePaymentIntentId: stripePaymentIntentId,
+    });
   }
 }
