@@ -10,7 +10,7 @@ Tech stack:
 
 ## 🚧 Work in Progress 
 
-The project is under development. Currently, users can: 
+ ✨ The project is under development. Currently, users can: 
  - Register an account as either a pet sitter or a pet owner, secured using NextAuth.
  - Edit user account, set services they offer, hourly rate, bio, availability.
  - Seamlessly switch between pet sitters and pet owners through the user dashboard.
@@ -30,11 +30,7 @@ What's on the horizon:
  - Landing page of PetSitter (early prototype)
   ![image](https://github.com/user-attachments/assets/1ebb8b3a-5b64-417d-83eb-f02625f04f9d)
 
-## ✨ Planned features
 
- - Browse and book trusted pet sitters.
- - Manage user profiles and preferences.
- - Leave reviews and ratings for sitters or owners.
 
 ## 📌 Note
 This app is not production-ready. Many features are still under development, and some functionalities might not work as intended yet. It's like 
