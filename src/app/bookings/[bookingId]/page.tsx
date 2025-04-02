@@ -8,8 +8,13 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { BookingDetails } from '@/components/bookings/BookingDetails'; 
 import { PaymentButton } from '@/components/bookings/PaymentButton'; 
-import { Loader2, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { Loader2, AlertTriangle, ArrowLeft, Star } from 'lucide-react';
 import { BookingWithDetails } from '../../../../types/booking';
+import { ReviewForm } from '@/components/reviews/ReviewForm';
+import { ReviewWithAuthor } from '../../../../types/review';
+import { BookingStatus } from '@prisma/client';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 
 export default function BookingDetailsPage() {
@@ -24,8 +29,12 @@ export default function BookingDetailsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [hasReviewed, setHasReviewed] = useState<boolean | null>(null); 
+  const [review, setReview] = useState<ReviewWithAuthor | null>(null);
+
+
   useEffect(() => {
-    const fetchBooking = async () => {
+    const fetchBookingAndReview = async () => {
       if (!bookingId) {
           setError("Booking ID is missing.");
           setIsLoading(false);
@@ -43,29 +52,53 @@ export default function BookingDetailsPage() {
             return;
       }
 
-      if (sessionStatus === 'authenticated') {
+      if (sessionStatus === 'authenticated' && bookingId) {
           setIsLoading(true);
           setError(null);
+          setHasReviewed(null); 
+          setReview(null);
+
           console.log(`Fetching booking ${bookingId} for user ${session!.user!.id}`);
 
         try {
-          const response = await axios.get(`/api/bookings/${bookingId}`);
-          const fetchedBooking = response.data as BookingWithDetails; 
-        
+          const bookingResponse = await axios.get(`/api/bookings/${bookingId}`);
+          const fetchedBooking = bookingResponse.data as BookingWithDetails; 
+          
           const ownerUserId = fetchedBooking?.owner?.user?.id;
           const sitterUserId = fetchedBooking?.sitter?.user?.id;
           let role: 'owner' | 'sitter' | 'none' = 'none';
+
           if (ownerUserId === session!.user!.id) role = 'owner';
           else if (sitterUserId === session!.user!.id) role = 'sitter';
 
-          if (role === 'none') {
-            console.error("API returned booking but user role isn't determined.");
-            setError("Could not determine your role for this booking.");
-          } else {
-            setBooking(fetchedBooking);
-            setCurrentUserRole(role);
-            console.log("Booking data set, role:", role);
-          }
+          if (role === 'none') throw new Error("Could not determine role."); 
+          setBooking(fetchedBooking);
+          setCurrentUserRole(role);
+
+          if (role === 'owner' && fetchedBooking?.status === BookingStatus.COMPLETED) {
+            try {
+             
+              const reviewRes = await axios.get(`/api/bookings/${bookingId}/review`); 
+              if (reviewRes.data && reviewRes.data.review) {
+                setReview(reviewRes.data.review);
+                setHasReviewed(true);
+              } else {
+                setHasReviewed(false);
+              }
+            } catch (reviewError: any) {
+              if (axios.isAxiosError(reviewError) && reviewError.response?.status === 404) {
+                setHasReviewed(false);
+                console.log("No review found for this booking.");
+              } else {
+                console.error("Error checking review status:", reviewError);
+                setError(prev => prev ? `${prev} Failed to check review status.` : "Failed to check review status.");
+                setHasReviewed(null); 
+              }
+            }
+        } else {
+          setHasReviewed(false); 
+        }
+
         } catch (err) {
             console.error("Error fetching booking details:", err);
             if (axios.isAxiosError(err)) {
@@ -93,10 +126,14 @@ export default function BookingDetailsPage() {
       }
     };
 
-    fetchBooking();
+    fetchBookingAndReview();
 
   }, [bookingId, sessionStatus, session, router]); 
 
+
+  const handleReviewSubmitted = () => {
+    setHasReviewed(true); 
+  };
 
   if (isLoading || sessionStatus === 'loading') {
     return (
@@ -135,9 +172,12 @@ export default function BookingDetailsPage() {
       </div>
     );
   }
+  const canLeaveReview = currentUserRole === 'owner' && booking.status === BookingStatus.COMPLETED && hasReviewed === false;
+  const reviewAlreadyExists = currentUserRole === 'owner' && booking.status === BookingStatus.COMPLETED && hasReviewed === true;
 
     return (
     <div className="container mx-auto py-8">
+
       <div className='mb-6'> 
         <Link href={currentUserRole === 'owner' ? '/dashboard' : '/sitter-dashboard'}>
           <Button variant="outline">
@@ -146,13 +186,38 @@ export default function BookingDetailsPage() {
         </Link>
       </div>
 
-        <BookingDetails booking={booking} currentUserRole={currentUserRole} />
+      <BookingDetails booking={booking} currentUserRole={currentUserRole} />
 
-        {currentUserRole === 'owner' && (
-          <div className="mt-6 max-w-4xl mx-auto px-6 pb-6"> 
-            <PaymentButton booking={booking} />
-          </div>
+      {currentUserRole === 'owner' && (
+        <div className="mt-6 max-w-4xl mx-auto px-6 pb-6"> 
+          <PaymentButton booking={booking} />
+        </div>
+      )}
+
+      <div className="mt-6 max-w-4xl mx-auto px-6 pb-6">
+      {canLeaveReview && (
+          <ReviewForm
+                bookingId={booking.id}
+              sitterName={booking.sitter.user.name || 'the sitter'}
+              onReviewSubmitted={handleReviewSubmitted}
+          />
+      )}
+      {reviewAlreadyExists && review && (
+        <Card className="mt-4">
+          <CardHeader><CardTitle>Your Review</CardTitle></CardHeader>
+            <CardContent>
+              <Badge variant="secondary" className="flex items-center gap-1 text-sm">
+                {Array.from({length: review.rating})
+                  .map((_, index)=><Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />)  
+                }
+              </Badge>
+              {review.comment && <p className="mt-2 italic">"{review.comment}"</p>}
+            </CardContent>
+        </Card>
         )}
+        
+      </div>
+
     </div>
     );
 }

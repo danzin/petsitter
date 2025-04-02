@@ -48,7 +48,7 @@ export function PaymentButton({ booking }: PaymentButtonProps) {
         return (
         <div className="space-y-2 pt-4 border-t">
           <h3 className="text-lg font-semibold mb-2">Payment</h3>
-          <p className="text-sm text-muted-foreground mb-3">Booking is {booking.paymentStatus}.</p>
+          <p className="text-sm text-muted-foreground mb-3">Booking is {booking.status.toLowerCase()}.</p>
         </div>
         ); 
     }

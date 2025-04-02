@@ -48,12 +48,12 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts   Account[]
-  sessions   Session[]
-  petSitter  PetSitter?
-  petOwner   PetOwner?
-  reviews    Review[]   @relation("ReviewAuthor")
-  reviewsFor Review[]   @relation("ReviewSubject")
+  accounts       Account[]
+  sessions       Session[]
+  petSitter      PetSitter?
+  petOwner       PetOwner?
+  reviewsWritten Review[]   @relation("ReviewAuthor")
+  reviewsAbout   Review[]   @relation("ReviewSubject")
 }
 
 enum UserType {
@@ -146,10 +146,14 @@ model Review {
   comment   String?  @db.Text
   authorId  String
   subjectId String
-  bookingId String?
+  bookingId String
   createdAt DateTime @default(now())
 
-  author  User     @relation("ReviewAuthor", fields: [authorId], references: [id])
-  subject User     @relation("ReviewSubject", fields: [subjectId], references: [id])
-  booking Booking? @relation(fields: [bookingId], references: [id])
+  author  User     @relation("ReviewAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  subject User     @relation("ReviewSubject", fields: [subjectId], references: [id], onDelete: Cascade)
+  booking Booking? @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@unique([authorId, bookingId]) // owner can review a booking only once
+  @@index([subjectId])
+  @@index([bookingId])
 }
