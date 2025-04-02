@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SearchForm } from '@/components/search/SearchForm';
 import { UserNavbar } from '@/components/user-navbar/UserNavbar';
 import { IUser } from '../../types/utils';
-import { getCurrentUser } from '@/lib/auth/getCurrentUser';
+import { getCurrentUser } from '@/lib/auth/authContext';
 
 export default async function Home() {
   const user = await getCurrentUser();
