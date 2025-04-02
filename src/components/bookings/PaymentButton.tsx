@@ -60,8 +60,8 @@ export function PaymentButton({ booking }: PaymentButtonProps) {
         <p className="text-sm text-muted-foreground mb-3">Complete your booking by proceeding to payment.</p>
         <Button onClick={handlePayment} disabled={isLoading || booking.status == BookingStatus.PENDING} className="w-full sm:w-auto">
           {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CreditCard className="mr-2 h-4 w-4" />}
-          {isLoading ? 'Processing...' : 'Proceed to Payment'}
-          {booking.status == BookingStatus.PENDING && '(Pending Sitter Confirmation)'}
+          {isLoading ? 'Processing...' : booking.status == BookingStatus.PENDING ? 'Pending Sitter Confirmation' : 'Proceed to Payment'}
+          
         </Button>
         {error && <p className="text-sm text-destructive mt-2">{error}</p>}
       </div>
