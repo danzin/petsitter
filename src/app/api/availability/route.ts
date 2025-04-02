@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { container } from "tsyringe";
+import { container } from "@/lib/container";
 import { AuthService } from "@/services/AuthService";
 import { SitterService } from "@/services/SitterService";
 import { getAuthSession } from "@/lib/auth/authContext";

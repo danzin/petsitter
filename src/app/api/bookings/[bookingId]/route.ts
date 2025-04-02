@@ -1,35 +1,95 @@
 import { NextRequest, NextResponse } from "next/server";
 import { container } from "@/lib/container";
 import { BookingService } from "@/services/BookingService";
-import { BookingStatus } from "@prisma/client";
 import { getAuthSession } from "@/lib/auth/authContext";
+import { BookingWithDetails } from "../../../../../types/booking";
+import { BookingStatus } from "@prisma/client";
 
 const bookingService = container.resolve(BookingService);
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { bookingId: string } }
 ) {
   try {
-    const booking = await bookingService.getBookingById(params.id);
+    const session = await getAuthSession();
+    const { bookingId } = await params;
+
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { message: "Unauthorized: Not logged in" },
+        { status: 401 }
+      );
+    }
+    if (!bookingId) {
+      console.error(
+        "[API GET /bookings/id] Booking ID missing from params:",
+        params
+      );
+      return NextResponse.json(
+        { message: "Booking ID is required" },
+        { status: 400 }
+      );
+    }
+
+    console.log(
+      `[API GET /bookings/id] Fetching booking ${bookingId} for user ${session.user.id}`
+    );
+
+    const booking = await bookingService.getBookingById(bookingId);
+    // ---------------------------------------------------
 
     if (!booking) {
+      console.log(`[API GET /bookings/id] Booking ${bookingId} not found.`);
       return NextResponse.json(
         { message: "Booking not found" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json(booking, { status: 200 });
-  } catch (error) {
-    console.error("Booking retrieval error:", error);
+    const typedBooking = booking as BookingWithDetails;
+    const isOwner = typedBooking?.owner?.user?.id === session.user.id;
+    const isSitter = typedBooking?.sitter?.user?.id === session.user.id;
+
+    if (!isOwner && !isSitter) {
+      console.warn(
+        `[API GET /bookings/id] Forbidden access attempt: User ${session.user.id} on booking ${bookingId}`
+      );
+      return NextResponse.json(
+        {
+          message: "Forbidden: You do not have permission to view this booking",
+        },
+        { status: 403 }
+      );
+    }
+
+    const sanitizedBooking = {
+      ...typedBooking,
+      price: typedBooking.price.toString(),
+      sitter: typedBooking.sitter
+        ? {
+            ...typedBooking.sitter,
+            rate: typedBooking.sitter.rate?.toString(),
+          }
+        : undefined,
+    };
+
+    return NextResponse.json(sanitizedBooking, { status: 200 });
+  } catch (error: any) {
+    console.error(
+      `Booking retrieval error for ID ${params?.bookingId}:`,
+      error
+    );
+    const message =
+      error instanceof Error ? error.message : "Something went wrong";
+    if (message.includes("not found"))
+      return NextResponse.json({ message }, { status: 404 });
     return NextResponse.json(
-      { message: "Something went wrong" },
+      { message: "An internal server error occurred" },
       { status: 500 }
     );
   }
 }
-
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { bookingId: string } }

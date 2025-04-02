@@ -18,11 +18,15 @@ export interface BookingCreateInput {
   status?: BookingStatus;
 }
 
-export type BookingWithDetails = Booking & {
-  owner: PetOwner & { user: Pick<User, "id" | "name" | "email" | "image"> };
-  sitter: PetSitter & { user: Pick<User, "id" | "name" | "email" | "image"> };
-  pets: Pet[];
-};
+export type BookingWithDetails =
+  | (Booking & {
+      owner: PetOwner & { user: Pick<User, "id" | "name" | "email" | "image"> };
+      sitter: PetSitter & {
+        user: Pick<User, "id" | "name" | "email" | "image">;
+      };
+      pets: Pet[];
+    })
+  | null;
 
 export interface BookingDetailsProps {
   booking: BookingWithDetails;

@@ -128,7 +128,7 @@ const pastBookings = bookings.filter((booking: any) =>
                               <div>
                                 <p className="font-medium">{booking.sitter.user.name}</p>
                                 <p className="text-sm text-gray-500">
-                                  {new Date(booking.startDate).toLocaleDateString()} - 
+                                  {new Date(booking.startDate).toLocaleDateString()} - {' '} 
                                   {new Date(booking.endDate).toLocaleDateString()}
                                 </p>
                                 <p className="text-sm mt-1">
@@ -178,7 +178,7 @@ const pastBookings = bookings.filter((booking: any) =>
                               <div>
                                 <p className="font-medium">{booking.sitter.user.name}</p>
                                 <p className="text-sm text-gray-500">
-                                  {new Date(booking.startDate).toLocaleDateString()} - 
+                                  {new Date(booking.startDate).toLocaleDateString()} - {' '} 
                                   {new Date(booking.endDate).toLocaleDateString()}
                                 </p>
                                 <p className="text-sm mt-1">

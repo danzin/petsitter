@@ -211,8 +211,6 @@ export default function PetSitterDashboard() {
                 )}
               </TabsContent>
 
-             
-              
               <TabsContent value="past">
                 {pastBookings.length > 0 ? (
                   <div className="space-y-4 max-h-96 overflow-y-auto pr-2">

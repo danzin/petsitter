@@ -48,12 +48,12 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts   Account[]
-  sessions   Session[]
-  petSitter  PetSitter?
-  petOwner   PetOwner?
-  reviews    Review[]   @relation("ReviewAuthor")
-  reviewsFor Review[]   @relation("ReviewSubject")
+  accounts       Account[]
+  sessions       Session[]
+  petSitter      PetSitter?
+  petOwner       PetOwner?
+  reviewsWritten Review[]   @relation("ReviewAuthor")
+  reviewsAbout   Review[]   @relation("ReviewSubject")
 }
 
 enum UserType {
@@ -115,17 +115,29 @@ model Booking {
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
-  owner   PetOwner  @relation("OwnerBookings", fields: [ownerId], references: [id])
-  sitter  PetSitter @relation("SitterBookings", fields: [sitterId], references: [id])
-  pets    Pet[]     @relation("PetBookings")
-  reviews Review[]
+  paymentStatus           PaymentStatus @default(UNPAID)
+  stripeCheckoutSessionId String?       @unique
+  stripePaymentIntentId   String?       @unique
+  owner                   PetOwner      @relation("OwnerBookings", fields: [ownerId], references: [id])
+  sitter                  PetSitter     @relation("SitterBookings", fields: [sitterId], references: [id])
+  pets                    Pet[]         @relation("PetBookings")
+  reviews                 Review[]
 }
 
 enum BookingStatus {
   PENDING
   CONFIRMED
+  PAID
   COMPLETED
   CANCELLED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
 }
 
 model Review {
@@ -134,10 +146,14 @@ model Review {
   comment   String?  @db.Text
   authorId  String
   subjectId String
-  bookingId String?
+  bookingId String
   createdAt DateTime @default(now())
 
-  author  User     @relation("ReviewAuthor", fields: [authorId], references: [id])
-  subject User     @relation("ReviewSubject", fields: [subjectId], references: [id])
-  booking Booking? @relation(fields: [bookingId], references: [id])
+  author  User     @relation("ReviewAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  subject User     @relation("ReviewSubject", fields: [subjectId], references: [id], onDelete: Cascade)
+  booking Booking? @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@unique([authorId, bookingId]) // owner can review a booking only once
+  @@index([subjectId])
+  @@index([bookingId])
 }
