@@ -17,10 +17,12 @@ The project is under development. Currently, users can:
  - Search Functionality: Effortlessly find the perfect sitter based on your preferences.
  - Add and edit pets
  - Booking System: Schedule and manage pet sitting appointments.
-
+ - Review system: Leave a review after an appointment.
+ - Stripe integration
+   
 What's on the horizon: 
-
- - Review system: Leave a review after an appointment. 
+ - Improved UX/UI
+ - Refactoring and polishing some functionality
 
 
 ## 📸 Preview
