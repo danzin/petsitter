@@ -19,10 +19,12 @@ Tech stack:
  - Search Functionality: Effortlessly find the perfect sitter based on your preferences.
  - Add and edit pets
  - Booking System: Schedule and manage pet sitting appointments.
- - Review system: Leave a review after an appointment.
+ - Review system: Leave a review and rating after an appointment.
  - Stripe integration: Pay for the booking appointment using Stripe. 
    
 What's on the horizon: 
+ - Messaging system 
+ - Notification system
  - Improved UX/UI
  - Refactoring and polishing some functionality
 
