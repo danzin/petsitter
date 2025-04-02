@@ -35,7 +35,7 @@ What's on the horizon:
 
 
 ## 📌 Note
-This app is not production-ready. Many features are still under development, and some functionalities might not work as intended yet. It's like 
+This app is not production-ready. Many features are still under development, and some functionalities might not work as intended yet.
 
 ## Running the app 
 
